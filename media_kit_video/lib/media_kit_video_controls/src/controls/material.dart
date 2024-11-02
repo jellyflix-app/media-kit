@@ -5,14 +5,14 @@
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 // ignore_for_file: non_constant_identifier_names
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:volume_controller/volume_controller.dart';
-import 'package:screen_brightness/screen_brightness.dart';
-
-import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/video_state.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
+import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/video_state.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/video_controls_theme_data_injector.dart';
+import 'package:screen_brightness/screen_brightness.dart';
+import 'package:volume_controller/volume_controller.dart';
 
 /// {@template material_video_controls}
 ///
@@ -160,6 +160,12 @@ class MaterialVideoControlsThemeData {
   /// giving more or less space to each one based on the specified ratios.
   final List<int> seekOnDoubleTapLayoutWidgetRatios;
 
+  /// Duration of seek on double tap backward.
+  final Duration seekOnDoubleTapBackwardDuration;
+
+  /// Duration of seek on double tap forward.
+  final Duration seekOnDoubleTapForwardDuration;
+
   /// Whether the controls are initially visible.
   final bool visibleOnMount;
 
@@ -282,6 +288,8 @@ class MaterialVideoControlsThemeData {
     this.seekOnDoubleTapEnabledWhileControlsVisible = true,
     this.seekOnDoubleTapLayoutTapsRatios = const [1, 1, 1],
     this.seekOnDoubleTapLayoutWidgetRatios = const [1, 1, 1],
+    this.seekOnDoubleTapBackwardDuration = const Duration(seconds: 10),
+    this.seekOnDoubleTapForwardDuration = const Duration(seconds: 10),
     this.visibleOnMount = false,
     this.speedUpOnLongPress = false,
     this.speedUpFactor = 2.0,
@@ -341,6 +349,8 @@ class MaterialVideoControlsThemeData {
     bool? seekOnDoubleTapEnabledWhileControlsVisible,
     List<int>? seekOnDoubleTapLayoutTapsRatios,
     List<int>? seekOnDoubleTapLayoutWidgetRatios,
+    Duration? seekOnDoubleTapBackwardDuration,
+    Duration? seekOnDoubleTapForwardDuration,
     bool? visibleOnMount,
     bool? speedUpOnLongPress,
     double? speedUpFactor,
@@ -394,6 +404,10 @@ class MaterialVideoControlsThemeData {
           this.seekOnDoubleTapLayoutTapsRatios,
       seekOnDoubleTapLayoutWidgetRatios: seekOnDoubleTapLayoutWidgetRatios ??
           this.seekOnDoubleTapLayoutWidgetRatios,
+      seekOnDoubleTapBackwardDuration: seekOnDoubleTapBackwardDuration ??
+          this.seekOnDoubleTapBackwardDuration,
+      seekOnDoubleTapForwardDuration: seekOnDoubleTapForwardDuration ??
+          this.seekOnDoubleTapForwardDuration,
       visibleOnMount: visibleOnMount ?? this.visibleOnMount,
       speedUpOnLongPress: speedUpOnLongPress ?? this.speedUpOnLongPress,
       speedUpFactor: speedUpFactor ?? this.speedUpFactor,
@@ -493,7 +507,7 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
   double _brightnessValue = 0.0;
   bool _brightnessIndicator = false;
   Timer? _brightnessTimer;
-
+  double _currentRate = 1.0;
   double _volumeValue = 0.0;
   bool _volumeIndicator = false;
   Timer? _volumeTimer;
@@ -539,6 +553,7 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
     setState(() {
       _speedUpIndicator = true;
     });
+    _currentRate = controller(context).player.state.rate;
     controller(context).player.setRate(_theme(context).speedUpFactor);
   }
 
@@ -546,7 +561,7 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
     setState(() {
       _speedUpIndicator = false;
     });
-    controller(context).player.setRate(1.0);
+    controller(context).player.setRate(_currentRate);
   }
 
   @override
@@ -1212,7 +1227,7 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                   duration: _theme(context).controlsTransitionDuration,
                   child: _theme(context)
                           .brightnessIndicatorBuilder
-                          ?.call(context, _volumeValue) ??
+                          ?.call(context, _brightnessValue) ??
                       Container(
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
@@ -1375,6 +1390,8 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                                   opacity: _hideSeekBackwardButton ? 0 : 1.0,
                                   duration: const Duration(milliseconds: 200),
                                   child: _BackwardSeekIndicator(
+                                    duration: _theme(context)
+                                        .seekOnDoubleTapBackwardDuration,
                                     onChanged: (value) {
                                       _seekBarDeltaValueNotifier.value = -value;
                                     },
@@ -1415,10 +1432,10 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                         if (_theme(context)
                                 .seekOnDoubleTapLayoutWidgetRatios[1] >
                             0)
-                          Expanded(
-                              flex: _theme(context)
-                                  .seekOnDoubleTapLayoutWidgetRatios[1],
-                              child: SizedBox()),
+                          Spacer(
+                            flex: _theme(context)
+                                .seekOnDoubleTapLayoutWidgetRatios[1],
+                          ),
                         Expanded(
                           flex: _theme(context)
                               .seekOnDoubleTapLayoutWidgetRatios[2],
@@ -1427,6 +1444,8 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                                   opacity: _hideSeekForwardButton ? 0 : 1.0,
                                   duration: const Duration(milliseconds: 200),
                                   child: _ForwardSeekIndicator(
+                                    duration: _theme(context)
+                                        .seekOnDoubleTapForwardDuration,
                                     onChanged: (value) {
                                       _seekBarDeltaValueNotifier.value = value;
                                     },
@@ -1581,6 +1600,7 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
       tapped = true;
       slider = percent.clamp(0.0, 1.0);
     });
+    controller(context).player.seek(duration * slider);
   }
 
   void onPointerDown() {
@@ -1593,13 +1613,11 @@ class MaterialSeekBarState extends State<MaterialSeekBar> {
   void onPointerUp() {
     widget.onSeekEnd?.call();
     setState(() {
-      tapped = false;
-    });
-    controller(context).player.seek(duration * slider);
-    setState(() {
       // Explicitly set the position to prevent the slider from jumping.
+      tapped = false;
       position = duration * slider;
     });
+    controller(context).player.seek(duration * slider);
   }
 
   void onPanStart(DragStartDetails e, BoxConstraints constraints) {
@@ -2013,10 +2031,12 @@ class MaterialPositionIndicatorState extends State<MaterialPositionIndicator> {
 }
 
 class _BackwardSeekIndicator extends StatefulWidget {
+  final Duration duration;
   final void Function(Duration) onChanged;
   final void Function(Duration) onSubmitted;
   const _BackwardSeekIndicator({
     Key? key,
+    required this.duration,
     required this.onChanged,
     required this.onSubmitted,
   }) : super(key: key);
@@ -2026,7 +2046,7 @@ class _BackwardSeekIndicator extends StatefulWidget {
 }
 
 class _BackwardSeekIndicatorState extends State<_BackwardSeekIndicator> {
-  Duration value = const Duration(seconds: 10);
+  late Duration value = widget.duration;
 
   Timer? timer;
 
@@ -2100,10 +2120,12 @@ class _BackwardSeekIndicatorState extends State<_BackwardSeekIndicator> {
 }
 
 class _ForwardSeekIndicator extends StatefulWidget {
+  final Duration duration;
   final void Function(Duration) onChanged;
   final void Function(Duration) onSubmitted;
   const _ForwardSeekIndicator({
     Key? key,
+    required this.duration,
     required this.onChanged,
     required this.onSubmitted,
   }) : super(key: key);
@@ -2113,7 +2135,7 @@ class _ForwardSeekIndicator extends StatefulWidget {
 }
 
 class _ForwardSeekIndicatorState extends State<_ForwardSeekIndicator> {
-  Duration value = const Duration(seconds: 10);
+  late Duration value = widget.duration;
 
   Timer? timer;
 

@@ -70,6 +70,9 @@ abstract class PlatformPlayer {
     bufferingController.stream.distinct(
       (previous, current) => previous == current,
     ),
+    bufferingPercentageController.stream.distinct(
+      (previous, current) => previous == current,
+    ),
     bufferController.stream.distinct(
       (previous, current) => previous == current,
     ),
@@ -124,6 +127,7 @@ abstract class PlatformPlayer {
         rateController.close(),
         pitchController.close(),
         bufferingController.close(),
+        bufferingPercentageController.close(),
         bufferController.close(),
         playlistModeController.close(),
         audioParamsController.close(),
@@ -279,7 +283,9 @@ abstract class PlatformPlayer {
     );
   }
 
-  Future<Uint8List?> screenshot({String? format = 'image/jpeg'}) async {
+  Future<Uint8List?> screenshot(
+      {String? format = 'image/jpeg',
+      bool includeLibassSubtitles = false}) async {
     throw UnimplementedError(
       '[PlatformPlayer.screenshot] is not implemented',
     );
@@ -326,7 +332,9 @@ abstract class PlatformPlayer {
   @protected
   final StreamController<bool> bufferingController =
       StreamController<bool>.broadcast();
-
+  @protected
+  final StreamController<double> bufferingPercentageController =
+      StreamController<double>.broadcast();
   @protected
   final StreamController<Duration> bufferController =
       StreamController<Duration>.broadcast();
@@ -470,6 +478,13 @@ class PlayerConfiguration {
   /// e.g. `assets/fonts/subtitle.ttf`
   final String? libassAndroidFont;
 
+  /// Font name of the `.ttf` font file to be used for [libass](https://github.com/libass/libass) based subtitle rendering on Android.
+  ///
+  /// e.g. `Droid Sans Fallback`
+  ///
+  /// NOTE: The font name is required, not the file name.
+  final String? libassAndroidFontName;
+
   /// Sets the log level on native backend.
   /// Default: `none`.
   final MPVLogLevel logLevel;
@@ -496,6 +511,7 @@ class PlayerConfiguration {
     this.muted = false,
     this.libass = false,
     this.libassAndroidFont,
+    this.libassAndroidFontName,
     this.logLevel = MPVLogLevel.error,
     this.bufferSize = 32 * 1024 * 1024,
     this.protocolWhitelist = const [
