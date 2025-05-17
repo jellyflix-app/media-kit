@@ -1030,7 +1030,7 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                 alignment: Alignment.bottomCenter,
                                 children: [
                                   if (_theme(context).displaySeekBar)
-                                    MaterialSeekBar(
+                                    JellyflixSeekBar(
                                       onSeekStart: () {
                                         _timer?.cancel();
                                       },
@@ -1081,7 +1081,7 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                           alignment: Alignment.bottomCenter,
                           children: [
                             if (_theme(context).displaySeekBar)
-                              MaterialSeekBar(
+                              JellyflixSeekBar(
                                 delta: _seekBarDeltaValueNotifier,
                               ),
                             Container(
@@ -1512,12 +1512,12 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
 // SEEK BAR
 
 /// Material design seek bar.
-class MaterialSeekBar extends StatefulWidget {
+class JellyflixSeekBar extends StatefulWidget {
   final ValueNotifier<Duration>? delta;
   final VoidCallback? onSeekStart;
   final VoidCallback? onSeekEnd;
 
-  const MaterialSeekBar({
+  const JellyflixSeekBar({
     Key? key,
     this.delta,
     this.onSeekStart,
@@ -1525,10 +1525,10 @@ class MaterialSeekBar extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  MaterialSeekBarState createState() => MaterialSeekBarState();
+  JellyflixSeekBarState createState() => JellyflixSeekBarState();
 }
 
-class MaterialSeekBarState extends State<MaterialSeekBar> {
+class JellyflixSeekBarState extends State<JellyflixSeekBar> {
   bool tapped = false;
   double slider = 0.0;
 

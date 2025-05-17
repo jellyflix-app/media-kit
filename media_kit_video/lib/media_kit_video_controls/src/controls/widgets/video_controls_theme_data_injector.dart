@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:media_kit_video/media_kit_video_controls/src/controls/cupertino.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/jellyflix_controls.dart';
+import 'package:media_kit_video/media_kit_video_controls/src/controls/jellyflix_desktop_controls.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/material.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/material_desktop.dart';
 
@@ -94,6 +95,20 @@ class _VideoControlsThemeDataInjectorState
       final fullscreen = theme?.fullscreen ??
           kDefaultJellyflixVideoControlsThemeDataFullscreen;
       return JellyflixVideoControlsTheme(
+        normal: normal,
+        fullscreen: fullscreen,
+        child: child,
+      );
+    },
+    (child) {
+      final theme = JellyflixDesktopVideoControlsTheme.maybeOf(
+        widget.context ?? context,
+      );
+      final normal =
+          theme?.normal ?? kDefaultJellyflixDesktopVideoControlsThemeData;
+      final fullscreen = theme?.fullscreen ??
+          kDefaultJellyflixDesktopVideoControlsThemeDataFullscreen;
+      return JellyflixDesktopVideoControlsTheme(
         normal: normal,
         fullscreen: fullscreen,
         child: child,
