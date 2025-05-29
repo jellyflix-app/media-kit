@@ -5,6 +5,7 @@
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 // ignore_for_file: non_constant_identifier_names
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -210,8 +211,8 @@ class JellyflixDesktopVideoControlsThemeData {
     this.buttonBarHeight = 56.0,
     this.buttonBarButtonSize = 28.0,
     this.buttonBarButtonColor = const Color(0xFFFFFFFF),
-    this.seekBarTransitionDuration = const Duration(milliseconds: 300),
-    this.seekBarThumbTransitionDuration = const Duration(milliseconds: 150),
+    this.seekBarTransitionDuration = const Duration(milliseconds: 50),
+    this.seekBarThumbTransitionDuration = const Duration(milliseconds: 50),
     this.seekBarMargin = const EdgeInsets.symmetric(horizontal: 16.0),
     this.seekBarHeight = 3.2,
     this.seekBarHoverHeight = 5.6,
@@ -885,11 +886,52 @@ class JellyflixDesktopSeekBar extends StatefulWidget {
   final VoidCallback? onSeekStart;
   final VoidCallback? onSeekEnd;
 
-  const JellyflixDesktopSeekBar({
-    Key? key,
+  JellyflixDesktopSeekBar({
+    super.key,
     this.onSeekStart,
     this.onSeekEnd,
-  }) : super(key: key);
+    this.min = 0.0,
+    this.max = 100.0,
+    this.value = 0.0,
+    this.barColor = Colors.white,
+    this.rightFillColor = Colors.white12,
+    this.leftFillColor = const Color.fromARGB(255, 86, 21, 198),
+    this.height = 50.0,
+    this.barWidth = 6.0,
+    this.sliderHeight = 20.0,
+    this.onChange,
+    this.labelStyle = const TextStyle(
+      fontSize: 16.0,
+      color: Colors.white,
+      fontWeight: FontWeight.w800,
+    ),
+    BorderRadius? cornerRadius,
+    this.markers = const [],
+    this.markerNames = const [],
+    this.circleSize = 6.0,
+    this.circleColor = Colors.white,
+    this.snappingFactor = 0.01,
+  })  : _cornerRadius = cornerRadius ?? BorderRadius.circular(8.0),
+        assert(value >= 0.0 && value <= 1.0);
+
+  /// Initial progress value.
+  final double value;
+  final Color barColor;
+  final Color rightFillColor;
+  final Color leftFillColor;
+  final double height;
+  final double barWidth;
+  final BorderRadius _cornerRadius;
+  final TextStyle labelStyle;
+  final List<double> markers;
+  final List<String> markerNames;
+  final double min;
+  final double max;
+  final double sliderHeight;
+  final double circleSize;
+  final Color circleColor;
+  final double snappingFactor;
+  final void Function(double value)? onChange;
 
   @override
   JellyflixDesktopSeekBarState createState() => JellyflixDesktopSeekBarState();
@@ -904,6 +946,8 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
   late Duration position = controller(context).player.state.position;
   late Duration duration = controller(context).player.state.duration;
   late Duration buffer = controller(context).player.state.buffer;
+
+  late final dragBarWidth = widget.barWidth + (_barHorizontalMargins * 2);
 
   final List<StreamSubscription> subscriptions = [];
 
@@ -1033,81 +1077,307 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
       clipBehavior: Clip.none,
       margin: _theme(context).seekBarMargin,
       child: LayoutBuilder(
-        builder: (context, constraints) => MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onHover: (e) => onHover(e, constraints),
-          onEnter: (e) => onEnter(e, constraints),
-          onExit: (e) => onExit(e, constraints),
-          child: Listener(
-            onPointerMove: (e) => onPointerMove(e, constraints),
-            onPointerDown: (e) => onPointerDown(),
-            onPointerUp: (e) => onPointerUp(),
-            child: Container(
-              color: const Color(0x00000000),
-              width: constraints.maxWidth,
-              height: _theme(context).seekBarContainerHeight,
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.centerLeft,
-                children: [
-                  AnimatedContainer(
-                    width: constraints.maxWidth,
-                    height: hover
-                        ? _theme(context).seekBarHoverHeight
-                        : _theme(context).seekBarHeight,
-                    alignment: Alignment.centerLeft,
-                    duration: _theme(context).seekBarThumbTransitionDuration,
-                    color: _theme(context).seekBarColor,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.centerLeft,
+        builder: (context, constraints) {
+          // Use theme values where possible
+          // final barWidth = _theme(context).seekBarHeight;
+          // final dragRegion =
+          //     Size(dragBarWidth + 20, _theme(context).seekBarContainerHeight);
+          final sliderHeight = _theme(context).seekBarHoverHeight;
+          final sliderWidth = constraints.maxWidth;
+          final sliderWidthWithOutBar = sliderWidth - (dragBarWidth / 2);
+
+          // The current progress value (0.0 - 1.0)
+          final double progress = click ? slider : positionPercent;
+
+          // Snap to markers if close enough
+          double snappedProgress = progress;
+          for (double marker in widget.markers) {
+            double markerPosition =
+                (marker - widget.min) / (widget.max - widget.min);
+            if ((progress - markerPosition).abs() < widget.snappingFactor) {
+              snappedProgress = markerPosition;
+              break;
+            }
+          }
+          // TODO add snapping
+          double leftBoxWidth =
+              (sliderWidth * snappedProgress) - (widget.barWidth / 2);
+          double rightBoxWidth =
+              max(0, sliderWidth - leftBoxWidth - (widget.barWidth / 2));
+          print(
+              "width: $dragBarWidth left: $leftBoxWidth right: $rightBoxWidth rest: ${sliderWidth - leftBoxWidth - rightBoxWidth}");
+
+          return MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onHover: (e) => onHover(e, constraints),
+            onEnter: (e) => onEnter(e, constraints),
+            onExit: (e) => onExit(e, constraints),
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onHorizontalDragStart: (dragDetails) {
+                widget.onSeekStart?.call();
+                setState(() {
+                  click = true;
+                });
+                // Optionally, update slider position here if desired
+                // Set slider position to where the drag started
+                final RenderBox box = context.findRenderObject() as RenderBox;
+                final localPosition =
+                    box.globalToLocal(dragDetails.globalPosition);
+                double position = (localPosition.dx) / sliderWidth;
+                // Snap to markers if close enough
+                for (double marker in widget.markers) {
+                  double markerPosition =
+                      (marker - widget.min) / (widget.max - widget.min);
+                  if ((position - markerPosition).abs() <
+                      widget.snappingFactor) {
+                    position = markerPosition;
+                    break;
+                  }
+                }
+                setState(() {
+                  slider = position.clamp(0.0, 1.0);
+                });
+                controller(context).player.seek(duration * slider);
+              },
+              onHorizontalDragUpdate: (dragDetails) {
+                final RenderBox box = context.findRenderObject() as RenderBox;
+                final localPosition =
+                    box.globalToLocal(dragDetails.globalPosition);
+                double position = (localPosition.dx) / sliderWidth;
+                // Snap to markers if close enough
+                for (double marker in widget.markers) {
+                  double markerPosition =
+                      (marker - widget.min) / (widget.max - widget.min);
+                  if ((position - markerPosition).abs() <
+                      widget.snappingFactor) {
+                    position = markerPosition;
+                    break;
+                  }
+                }
+                setState(() {
+                  slider = position.clamp(0.0, 1.0);
+                });
+                controller(context).player.seek(duration * slider);
+                HapticFeedback.selectionClick();
+              },
+              onHorizontalDragEnd: (dragDetails) {
+                widget.onSeekEnd?.call();
+                setState(() {
+                  click = false;
+                  position = duration * slider;
+                });
+                controller(context).player.seek(duration * slider);
+              },
+              onTapDown: (tapDetails) {
+                widget.onSeekStart?.call();
+                final RenderBox box = context.findRenderObject() as RenderBox;
+                final localPosition =
+                    box.globalToLocal(tapDetails.globalPosition);
+
+                double position = (localPosition.dx) / sliderWidth;
+                setState(() {
+                  slider = position.clamp(0.0, 1.0);
+                });
+                controller(context).player.seek(duration * slider);
+                HapticFeedback.selectionClick();
+              },
+              child: Container(
+                color: const Color(0x00000000),
+                width: constraints.maxWidth,
+                height: _theme(context).seekBarContainerHeight,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    Row(
                       children: [
-                        Container(
-                          width: constraints.maxWidth * slider,
-                          color: _theme(context).seekBarHoverColor,
+                        // Left Box
+                        AnimatedContainer(
+                          width: leftBoxWidth,
+                          height: sliderHeight,
+                          duration:
+                              _theme(context).seekBarThumbTransitionDuration,
+                          decoration: BoxDecoration(
+                            color: _theme(context).seekBarPositionColor,
+                            borderRadius: widget._cornerRadius,
+                          ),
+                          margin: EdgeInsets.only(right: _barHorizontalMargins),
                         ),
+                        // Bar
                         Container(
-                          width: constraints.maxWidth * bufferPercent,
-                          color: _theme(context).seekBarBufferColor,
+                          width: widget.barWidth,
+                          decoration: BoxDecoration(
+                            color: widget.barColor,
+                            borderRadius: widget._cornerRadius,
+                          ),
                         ),
-                        Container(
-                          width: click
-                              ? constraints.maxWidth * slider
-                              : constraints.maxWidth * positionPercent,
-                          color: _theme(context).seekBarPositionColor,
+                        // Right Box
+                        Stack(
+                          children: [
+                            // Buffer indicator (shows buffered portion)
+                            AnimatedContainer(
+                              width: rightBoxWidth,
+                              height: sliderHeight,
+                              duration: _theme(context)
+                                  .seekBarThumbTransitionDuration,
+                              decoration: BoxDecoration(
+                                color: _theme(context)
+                                    .seekBarBufferColor
+                                    .withOpacity(0.5),
+                                borderRadius: widget._cornerRadius,
+                              ),
+                              margin: EdgeInsets.only(
+                                left: _barHorizontalMargins,
+                              ),
+                            ),
+                            // The actual right box (background)
+                            AnimatedContainer(
+                              width: rightBoxWidth,
+                              height: sliderHeight,
+                              duration: _theme(context)
+                                  .seekBarThumbTransitionDuration,
+                              decoration: BoxDecoration(
+                                color: _theme(context).seekBarBufferColor,
+                                borderRadius: widget._cornerRadius,
+                              ),
+                              margin: EdgeInsets.only(
+                                left: _barHorizontalMargins,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ),
-                  Positioned(
-                    left: click
-                        ? (constraints.maxWidth -
-                                _theme(context).seekBarThumbSize / 2) *
-                            slider
-                        : (constraints.maxWidth -
-                                _theme(context).seekBarThumbSize / 2) *
-                            positionPercent,
-                    child: AnimatedContainer(
-                      width: hover || click
-                          ? _theme(context).seekBarThumbSize
-                          : 0.0,
-                      height: hover || click
-                          ? _theme(context).seekBarThumbSize
-                          : 0.0,
-                      duration: _theme(context).seekBarThumbTransitionDuration,
-                      decoration: BoxDecoration(
-                        color: _theme(context).seekBarThumbColor,
-                        borderRadius: BorderRadius.circular(
-                          _theme(context).seekBarThumbSize / 2,
+                    // Markers (circles)
+                    ...widget.markers.map((marker) {
+                      double markerPosition =
+                          (marker - widget.min) / (widget.max - widget.min);
+                      double markerOffset =
+                          markerPosition * sliderWidthWithOutBar +
+                              widget.barWidth;
+                      double circleSize = widget.circleSize;
+                      return Positioned(
+                        left: markerOffset,
+                        top: _theme(context).seekBarContainerHeight / 2 -
+                            circleSize / 2,
+                        child: Container(
+                          width: circleSize,
+                          height: circleSize,
+                          decoration: BoxDecoration(
+                            color: widget.circleColor,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
+                      );
+                    }),
+                    // Marker names
+                    ...widget.markers.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      double marker = entry.value;
+                      double markerPosition =
+                          (marker - widget.min) / (widget.max - widget.min);
+                      double markerOffset =
+                          markerPosition * sliderWidthWithOutBar +
+                              widget.barWidth;
+                      return Positioned(
+                        left: markerOffset < sliderWidth / 2
+                            ? markerOffset
+                            : null,
+                        right: markerOffset >= sliderWidth / 2
+                            ? sliderWidth - markerOffset
+                            : null,
+                        top: -_theme(context).seekBarContainerHeight / 2,
+                        child: Builder(
+                          builder: (context) {
+                            double currentPosition =
+                                snappedProgress * sliderWidthWithOutBar +
+                                    widget.barWidth;
+                            bool isOnMarker = (currentPosition - markerOffset)
+                                    .abs() <
+                                widget.snappingFactor * sliderWidthWithOutBar;
+                            return isOnMarker &&
+                                    index < widget.markerNames.length
+                                ? Text(
+                                    widget.markerNames[index],
+                                    style: widget.labelStyle,
+                                  )
+                                : const SizedBox.shrink();
+                          },
+                        ),
+                      );
+                    }),
+                    //Drag Paddler with extra drag region.
+                    // Container(
+                    //   decoration: BoxDecoration(
+                    //     border: Border.all(
+                    //       color: Colors.amber,
+                    //       width: 2.0,
+                    //     ),
+                    //   ),
+                    //   child: Positioned.fromRect(
+                    //     rect: Rect.fromCenter(
+                    //       width: sliderWidth, //_dragRegion.width,
+                    //       height: dragRegion.height,
+                    //       center: Offset(sliderWidth / 2, sliderHeight / 2),
+                    //     ),
+                    //     child: GestureDetector(
+                    //         behavior: HitTestBehavior.translucent,
+                    //         onHorizontalDragStart: (dragDetails) {
+                    //           print("hello");
+                    //           _onHorizontalDragUpdate(dragDetails, sliderWidth);
+                    //         },
+                    //         onHorizontalDragCancel: () {
+                    //           print("cancel");
+                    //         },
+                    //         onHorizontalDragUpdate: (dragDetails) {
+                    //           print("update");
+                    //           _onHorizontalDragUpdate(dragDetails, sliderWidth);
+                    //         },
+                    //         onTapDown: (details) =>
+                    //             _onHorizontalDragUpdate(details, sliderWidth)
+
+                    //         //onTap: _onTap();
+                    //         ),
+                    //   ),
+                    //),
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// TODO move to theme
+const Duration _animationDuration = Duration(milliseconds: 50);
+const double _barHorizontalMargins = 6.0;
+const double _labelsHorizontalMargins = 12.0;
+
+class _DraggableBar extends StatelessWidget {
+  const _DraggableBar({
+    required this.width,
+    required this.color,
+    required this.cornerRadius,
+  });
+
+  final double width;
+  final Color color;
+  final BorderRadiusGeometry cornerRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: cornerRadius,
+      ),
+      margin: const EdgeInsets.symmetric(
+        horizontal: _barHorizontalMargins,
       ),
     );
   }
