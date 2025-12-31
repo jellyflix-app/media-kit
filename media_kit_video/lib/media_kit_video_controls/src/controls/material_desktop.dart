@@ -374,8 +374,8 @@ class _MaterialDesktopVideoControls extends StatefulWidget {
 /// {@macro material_desktop_video_controls}
 class _MaterialDesktopVideoControlsState
     extends State<_MaterialDesktopVideoControls> {
-  late bool mount = _theme(context).visibleOnMount;
-  late bool visible = _theme(context).visibleOnMount;
+  late bool mount;
+  late bool visible;
 
   Timer? _timer;
 
@@ -404,6 +404,9 @@ class _MaterialDesktopVideoControlsState
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (subscriptions.isEmpty) {
+      mount = _theme(context).visibleOnMount;
+      visible = _theme(context).visibleOnMount;
+
       subscriptions.addAll(
         [
           controller(context).player.stream.playlist.listen(
@@ -886,10 +889,10 @@ class MaterialDesktopSeekBar extends StatefulWidget {
   final VoidCallback? onSeekEnd;
 
   const MaterialDesktopSeekBar({
-    Key? key,
+    super.key,
     this.onSeekStart,
     this.onSeekEnd,
-  }) : super(key: key);
+  });
 
   @override
   MaterialDesktopSeekBarState createState() => MaterialDesktopSeekBarState();
@@ -1201,11 +1204,11 @@ class MaterialDesktopSkipNextButton extends StatelessWidget {
   final Color? iconColor;
 
   const MaterialDesktopSkipNextButton({
-    Key? key,
+    super.key,
     this.icon,
     this.iconSize,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1237,11 +1240,11 @@ class MaterialDesktopSkipPreviousButton extends StatelessWidget {
   final Color? iconColor;
 
   const MaterialDesktopSkipPreviousButton({
-    Key? key,
+    super.key,
     this.icon,
     this.iconSize,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1273,11 +1276,11 @@ class MaterialDesktopFullscreenButton extends StatelessWidget {
   final Color? iconColor;
 
   const MaterialDesktopFullscreenButton({
-    Key? key,
+    super.key,
     this.icon,
     this.iconSize,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1310,12 +1313,12 @@ class MaterialDesktopCustomButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const MaterialDesktopCustomButton({
-    Key? key,
+    super.key,
     this.icon,
     this.iconSize,
     this.iconColor,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

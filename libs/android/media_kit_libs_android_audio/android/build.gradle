@@ -12,7 +12,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'com.android.tools.build:gradle:8.13.0'
     }
 }
 
@@ -31,7 +31,7 @@ android {
         namespace 'com.alexmercerind.media_kit_libs_android_audio'
     }
 
-    compileSdkVersion 31
+    compileSdkVersion 36
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -58,10 +58,10 @@ task downloadDependencies(type: Exec)  {
 
         // Download all *.jar dependencies & verify their MD5 checksums.
         def filesToDownload = [
-            ["url": "https://github.com/media-kit/libmpv-android-audio-build/releases/download/v1.1.5/default-arm64-v8a.jar", "md5": "46f80b1f48ec7df4b5232b2f183ef012", "destination": file("$buildDir/v1.1.5/default-arm64-v8a.jar")],
-            ["url": "https://github.com/media-kit/libmpv-android-audio-build/releases/download/v1.1.5/default-armeabi-v7a.jar", "md5": "5655d8b66001ba374ca73e6205f62737", "destination": file("$buildDir/v1.1.5/default-armeabi-v7a.jar")],
-            ["url": "https://github.com/media-kit/libmpv-android-audio-build/releases/download/v1.1.5/default-x86_64.jar", "md5": "0775b74a81445784aed41180816e55be", "destination": file("$buildDir/v1.1.5/default-x86_64.jar")],
-            ["url": "https://github.com/media-kit/libmpv-android-audio-build/releases/download/v1.1.5/default-x86.jar", "md5": "e77160289385403425b1516f0dd692b0", "destination": file("$buildDir/v1.1.5/default-x86.jar")]
+            ["url": "https://github.com/media-kit/libmpv-android-audio-build/releases/download/v1.1.9/default-arm64-v8a.jar", "md5": "3057a0552b6338689fd563da4d8e2d68", "destination": file("$buildDir/v1.1.9/default-arm64-v8a.jar")],
+            ["url": "https://github.com/media-kit/libmpv-android-audio-build/releases/download/v1.1.9/default-armeabi-v7a.jar", "md5": "2fc445bfad52a289e1b01b8bcef3f8e0", "destination": file("$buildDir/v1.1.9/default-armeabi-v7a.jar")],
+            ["url": "https://github.com/media-kit/libmpv-android-audio-build/releases/download/v1.1.9/default-x86_64.jar", "md5": "b7d865cb47b70392296fe20f1a7cda68", "destination": file("$buildDir/v1.1.9/default-x86_64.jar")],
+            ["url": "https://github.com/media-kit/libmpv-android-audio-build/releases/download/v1.1.9/default-x86.jar", "md5": "6e8ff1aabe247021b47fc81ae3baf889", "destination": file("$buildDir/v1.1.9/default-x86.jar")]
         ]
 
         filesToDownload.each { fileInfo ->

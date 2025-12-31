@@ -1,10 +1,21 @@
+## 1.3.9
+
+- build: bump dependencies
+- fix: TrueHD support
+
+## 1.3.8
+
+- build: AGP 8.13.0
+- build: bump dependencies
+- build: 16KB page size support
+
 ## 1.3.7
 
- - **FIX**: undefined variable.
- - **FIX**: check if is found before md5.
- - **FIX**: md5 check.
- - **FIX**: md5Matches.
- - **FIX**: new gradle logic for downloading.
+- **FIX**: undefined variable.
+- **FIX**: check if is found before md5.
+- **FIX**: md5 check.
+- **FIX**: md5Matches.
+- **FIX**: new gradle logic for downloading.
 
 ## 1.3.6
 
