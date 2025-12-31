@@ -58,14 +58,14 @@ jobs:
           sed -i '/if.*FLUTTER_TARGET_PLATFORM.*windows-x64/,/else()/ {
             s|set(LIBMPV "mpv-dev-x86_64-.*\.7z")|set(LIBMPV "'"$X86_64_FILENAME"'")|
             s|set(LIBMPV_URL "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/.*/mpv-dev-x86_64-.*\.7z")|set(LIBMPV_URL "'"${{ steps.get_release_urls.outputs.x86_64_url }}"'")|
-            s|set(LIBMPV_MD5 ".*")|set(LIBMPV_MD5 "'"${{ steps.calculate_md5.outputs.x86_64_md5 }}"')|
+            s|set(LIBMPV_MD5 ".*")|set(LIBMPV_MD5 "'"${{ steps.calculate_md5.outputs.x86_64_md5 }}"'")|
           }' CMakeLists.txt
 
           # Update aarch64 section (lines within the else block)
           sed -i '/else()/,/endif()/ {
             s|set(LIBMPV "mpv-dev-aarch64-.*\.7z")|set(LIBMPV "'"$AARCH64_FILENAME"'")|
             s|set(LIBMPV_URL "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/.*/mpv-dev-aarch64-.*\.7z")|set(LIBMPV_URL "'"${{ steps.get_release_urls.outputs.aarch64_url }}"'")|
-            s|set(LIBMPV_MD5 ".*")|set(LIBMPV_MD5 "'"${{ steps.calculate_md5.outputs.aarch64_md5 }}"')|
+            s|set(LIBMPV_MD5 ".*")|set(LIBMPV_MD5 "'"${{ steps.calculate_md5.outputs.aarch64_md5 }}"'")|
           }' CMakeLists.txt
 
       - name: Check if CMakeLists.txt has changed
