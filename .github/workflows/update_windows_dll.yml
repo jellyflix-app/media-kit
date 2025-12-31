@@ -13,41 +13,71 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Get latest release URL
-        id: get_release_url
+      - name: Get latest release URLs
+        id: get_release_urls
         run: |
-            latest_release_url=$(curl -s https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/latest | jq -r '.assets[].browser_download_url' | grep mpv-dev-x86_64-2)
-            echo "::set-output name=url::$latest_release_url"
+          # Get both x86_64 and aarch64 release URLs
+          x86_64_url=$(curl -s https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/latest | jq -r '.assets[].browser_download_url' | grep 'mpv-dev-x86_64-2.*\.7z$')
+          aarch64_url=$(curl -s https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/latest | jq -r '.assets[].browser_download_url' | grep 'mpv-dev-aarch64-2.*\.7z$')
 
-      - name: Download archive
+          # Ensure both URLs were found
+          if [ -z "$x86_64_url" ]; then
+            echo "Error: x86_64 release not found"
+            exit 1
+          fi
+          if [ -z "$aarch64_url" ]; then
+            echo "Error: aarch64 release not found"
+            exit 1
+          fi
+
+          echo "::set-output name=x86_64_url::$x86_64_url"
+          echo "::set-output name=aarch64_url::$aarch64_url"
+
+      - name: Download archives
         run: |
-            wget ${{ steps.get_release_url.outputs.url }}
-                    
+          wget ${{ steps.get_release_urls.outputs.x86_64_url }}
+          wget ${{ steps.get_release_urls.outputs.aarch64_url }}
 
-      - name: Calculate MD5 hash
+      - name: Calculate MD5 hashes
         id: calculate_md5
         run: |
-            md5sum mpv-dev-x86_64-2*.7z | awk '{print $1}' > md5.txt
-            echo "::set-output name=md5::$(cat md5.txt)"
+          x86_64_md5=$(md5sum mpv-dev-x86_64-2*.7z | awk '{print $1}')
+          aarch64_md5=$(md5sum mpv-dev-aarch64-2*.7z | awk '{print $1}')
+          echo "::set-output name=x86_64_md5::$x86_64_md5"
+          echo "::set-output name=aarch64_md5::$aarch64_md5"
 
       - name: Update CMakeLists.txt
         run: |
-            cd libs/windows/media_kit_libs_windows_video/windows
-            FILENAME=$(basename "${{ steps.get_release_url.outputs.url }}")
-            sed -i "s#LIBMPV \".*\"#LIBMPV \"$FILENAME\"#g" CMakeLists.txt
-            sed -i "s#LIBMPV_URL \".*\"#LIBMPV_URL \"${{ steps.get_release_url.outputs.url }}\"#g" CMakeLists.txt
-            sed -i "s/LIBMPV_MD5 \".*\"/LIBMPV_MD5 \"${{ steps.calculate_md5.outputs.md5 }}\"/g" CMakeLists.txt
+          cd libs/windows/media_kit_libs_windows_video/windows
+
+          # Extract filenames from URLs
+          X86_64_FILENAME=$(basename "${{ steps.get_release_urls.outputs.x86_64_url }}")
+          AARCH64_FILENAME=$(basename "${{ steps.get_release_urls.outputs.aarch64_url }}")
+
+          # Update x86_64 section (lines within the if block)
+          sed -i '/if.*FLUTTER_TARGET_PLATFORM.*windows-x64/,/else()/ {
+            s|set(LIBMPV "mpv-dev-x86_64-.*\.7z")|set(LIBMPV "'"$X86_64_FILENAME"'")|
+            s|set(LIBMPV_URL "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/.*/mpv-dev-x86_64-.*\.7z")|set(LIBMPV_URL "'"${{ steps.get_release_urls.outputs.x86_64_url }}"'")|
+            s|set(LIBMPV_MD5 ".*")|set(LIBMPV_MD5 "'"${{ steps.calculate_md5.outputs.x86_64_md5 }}"')|
+          }' CMakeLists.txt
+
+          # Update aarch64 section (lines within the else block)
+          sed -i '/else()/,/endif()/ {
+            s|set(LIBMPV "mpv-dev-aarch64-.*\.7z")|set(LIBMPV "'"$AARCH64_FILENAME"'")|
+            s|set(LIBMPV_URL "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/.*/mpv-dev-aarch64-.*\.7z")|set(LIBMPV_URL "'"${{ steps.get_release_urls.outputs.aarch64_url }}"'")|
+            s|set(LIBMPV_MD5 ".*")|set(LIBMPV_MD5 "'"${{ steps.calculate_md5.outputs.aarch64_md5 }}"')|
+          }' CMakeLists.txt
 
       - name: Check if CMakeLists.txt has changed
         id: check_changes
         run: |
-            git diff --quiet --exit-code libs/windows/media_kit_libs_windows_video/windows/CMakeLists.txt || echo "::set-output name=changed::true"
+          git diff --quiet --exit-code libs/windows/media_kit_libs_windows_video/windows/CMakeLists.txt || echo "::set-output name=changed::true"
 
       - name: Commit changes
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-            git config --global user.name "GitHub Actions"
-            git config --global user.email "actions@github.com"
-            git add libs/windows/media_kit_libs_windows_video/windows/CMakeLists.txt
-            git commit -m "Update DLL hash"
-            git push
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add libs/windows/media_kit_libs_windows_video/windows/CMakeLists.txt
+          git commit -m "Update DLL hash"
+          git push
