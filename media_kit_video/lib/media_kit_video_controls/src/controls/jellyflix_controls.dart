@@ -5,6 +5,7 @@
 /// Use of this source code is governed by MIT license that can be found in the LICENSE file.
 // ignore_for_file: non_constant_identifier_names
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -20,18 +21,16 @@ import 'package:volume_controller/volume_controller.dart';
 ///
 /// {@endtemplate}
 Widget JellyflixVideoControls(VideoState state) {
-  return const VideoControlsThemeDataInjector(
-    child: _JellyflixVideoControls(),
-  );
+  return const VideoControlsThemeDataInjector(child: _JellyflixVideoControls());
 }
 
 /// [JellyflixVideoControlsThemeData] available in this [context].
 JellyflixVideoControlsThemeData _theme(BuildContext context) {
   return FullscreenInheritedWidget.maybeOf(context) == null
       ? JellyflixVideoControlsTheme.maybeOf(context)?.normal ??
-          kDefaultJellyflixVideoControlsThemeData
+            kDefaultJellyflixVideoControlsThemeData
       : JellyflixVideoControlsTheme.maybeOf(context)?.fullscreen ??
-          kDefaultJellyflixVideoControlsThemeDataFullscreen;
+            kDefaultJellyflixVideoControlsThemeDataFullscreen;
 }
 
 /// Default [JellyflixVideoControlsThemeData].
@@ -41,64 +40,64 @@ const kDefaultJellyflixVideoControlsThemeData =
 /// Default [JellyflixVideoControlsThemeData] for fullscreen.
 const kDefaultJellyflixVideoControlsThemeDataFullscreen =
     JellyflixVideoControlsThemeData(
-  displaySeekBar: true,
-  automaticallyImplySkipNextButton: true,
-  automaticallyImplySkipPreviousButton: true,
-  volumeGesture: true,
-  brightnessGesture: true,
-  seekGesture: true,
-  gesturesEnabledWhileControlsVisible: true,
-  seekOnDoubleTap: true,
-  seekOnDoubleTapEnabledWhileControlsVisible: true,
-  visibleOnMount: false,
-  speedUpOnLongPress: false,
-  speedUpFactor: 2.0,
-  verticalGestureSensitivity: 100,
-  horizontalGestureSensitivity: 1000,
-  backdropColor: Color(0x66000000),
-  padding: null,
-  controlsHoverDuration: Duration(seconds: 3),
-  controlsTransitionDuration: Duration(milliseconds: 300),
-  bufferingIndicatorBuilder: null,
-  volumeIndicatorBuilder: null,
-  brightnessIndicatorBuilder: null,
-  seekIndicatorBuilder: null,
-  speedUpIndicatorBuilder: null,
-  primaryButtonBar: [
-    Spacer(flex: 2),
-    MaterialSkipPreviousButton(),
-    Spacer(),
-    MaterialPlayOrPauseButton(iconSize: 56.0),
-    Spacer(),
-    MaterialSkipNextButton(),
-    Spacer(flex: 2),
-  ],
-  topButtonBar: [BackButton(), Text("fullscreen")],
-  topButtonBarMargin: EdgeInsets.symmetric(horizontal: 16.0),
-  bottomButtonBar: [
-    MaterialPositionIndicator(),
-    Spacer(),
-    MaterialFullscreenButton(),
-  ],
-  bottomButtonBarMargin: EdgeInsets.only(
-    left: 16.0,
-    right: 8.0,
-    bottom: 42.0,
-  ),
-  buttonBarHeight: 56.0,
-  buttonBarButtonSize: 24.0,
-  buttonBarButtonColor: Color(0xFFFFFFFF),
-  seekBarMargin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 42.0),
-  seekBarHeight: 2.4,
-  seekBarContainerHeight: 36.0,
-  seekBarColor: Color(0x3DFFFFFF),
-  seekBarPositionColor: Color(0xFFFF0000),
-  seekBarBufferColor: Color(0x3DFFFFFF),
-  seekBarThumbSize: 12.8,
-  seekBarThumbColor: Color(0xFFFF0000),
-  seekBarAlignment: Alignment.bottomCenter,
-  shiftSubtitlesOnControlsVisibilityChange: false,
-);
+      displaySeekBar: true,
+      automaticallyImplySkipNextButton: true,
+      automaticallyImplySkipPreviousButton: true,
+      volumeGesture: true,
+      brightnessGesture: true,
+      seekGesture: true,
+      gesturesEnabledWhileControlsVisible: true,
+      seekOnDoubleTap: true,
+      seekOnDoubleTapEnabledWhileControlsVisible: true,
+      visibleOnMount: false,
+      speedUpOnLongPress: false,
+      speedUpFactor: 2.0,
+      verticalGestureSensitivity: 100,
+      horizontalGestureSensitivity: 1000,
+      backdropColor: Color(0x66000000),
+      padding: null,
+      controlsHoverDuration: Duration(seconds: 3),
+      controlsTransitionDuration: Duration(milliseconds: 300),
+      bufferingIndicatorBuilder: null,
+      volumeIndicatorBuilder: null,
+      brightnessIndicatorBuilder: null,
+      seekIndicatorBuilder: null,
+      speedUpIndicatorBuilder: null,
+      primaryButtonBar: [
+        Spacer(flex: 2),
+        MaterialSkipPreviousButton(),
+        Spacer(),
+        MaterialPlayOrPauseButton(iconSize: 56.0),
+        Spacer(),
+        MaterialSkipNextButton(),
+        Spacer(flex: 2),
+      ],
+      topButtonBar: [BackButton(), Text("fullscreen")],
+      topButtonBarMargin: EdgeInsets.symmetric(horizontal: 16.0),
+      bottomButtonBar: [
+        MaterialPositionIndicator(),
+        Spacer(),
+        MaterialFullscreenButton(),
+      ],
+      bottomButtonBarMargin: EdgeInsets.only(
+        left: 16.0,
+        right: 8.0,
+        bottom: 42.0,
+      ),
+      buttonBarHeight: 56.0,
+      buttonBarButtonSize: 24.0,
+      buttonBarButtonColor: Color(0xFFFFFFFF),
+      seekBarMargin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 42.0),
+      seekBarHeight: 2.4,
+      seekBarContainerHeight: 36.0,
+      seekBarColor: Color(0x3DFFFFFF),
+      seekBarPositionColor: Color(0xFFFF0000),
+      seekBarBufferColor: Color(0x3DFFFFFF),
+      seekBarThumbSize: 12.8,
+      seekBarThumbColor: Color(0xFFFF0000),
+      seekBarAlignment: Alignment.bottomCenter,
+      shiftSubtitlesOnControlsVisibilityChange: false,
+    );
 
 /// {@template material_video_controls_theme_data}
 ///
@@ -266,6 +265,23 @@ class JellyflixVideoControlsThemeData {
   /// [Alignment] of seek bar inside the seek bar container.
   final Alignment seekBarAlignment;
 
+  // MARKERS
+
+  /// Marker timestamps in milliseconds.
+  final List<double> seekBarMarkers;
+
+  /// Names for each marker.
+  final List<String> seekBarMarkerNames;
+
+  /// Size of the marker circles.
+  final double seekBarMarkerSize;
+
+  /// Color of the marker circles.
+  final Color seekBarMarkerColor;
+
+  /// Snapping factor for markers (0.0 - 1.0).
+  final double seekBarMarkerSnappingFactor;
+
   // SUBTITLE
 
   /// Whether to shift the subtitles upwards when the controls are visible.
@@ -329,6 +345,11 @@ class JellyflixVideoControlsThemeData {
     this.seekBarThumbSize = 12.8,
     this.seekBarThumbColor = const Color(0xFFFF0000),
     this.seekBarAlignment = Alignment.bottomCenter,
+    this.seekBarMarkers = const [],
+    this.seekBarMarkerNames = const [],
+    this.seekBarMarkerSize = 6.0,
+    this.seekBarMarkerColor = const Color(0xFFFFFFFF),
+    this.seekBarMarkerSnappingFactor = 0.01,
     this.shiftSubtitlesOnControlsVisibilityChange = false,
   });
 
@@ -377,30 +398,39 @@ class JellyflixVideoControlsThemeData {
     double? seekBarThumbSize,
     Color? seekBarThumbColor,
     Alignment? seekBarAlignment,
+    List<double>? seekBarMarkers,
+    List<String>? seekBarMarkerNames,
+    double? seekBarMarkerSize,
+    Color? seekBarMarkerColor,
+    double? seekBarMarkerSnappingFactor,
     bool? shiftSubtitlesOnControlsVisibilityChange,
   }) {
     return JellyflixVideoControlsThemeData(
       displaySeekBar: displaySeekBar ?? this.displaySeekBar,
-      automaticallyImplySkipNextButton: automaticallyImplySkipNextButton ??
+      automaticallyImplySkipNextButton:
+          automaticallyImplySkipNextButton ??
           this.automaticallyImplySkipNextButton,
       automaticallyImplySkipPreviousButton:
           automaticallyImplySkipPreviousButton ??
-              this.automaticallyImplySkipPreviousButton,
+          this.automaticallyImplySkipPreviousButton,
       volumeGesture: volumeGesture ?? this.volumeGesture,
       brightnessGesture: brightnessGesture ?? this.brightnessGesture,
       seekGesture: seekGesture ?? this.seekGesture,
       gesturesEnabledWhileControlsVisible:
           gesturesEnabledWhileControlsVisible ??
-              this.gesturesEnabledWhileControlsVisible,
+          this.gesturesEnabledWhileControlsVisible,
       seekOnDoubleTap: seekOnDoubleTap ?? this.seekOnDoubleTap,
       seekOnDoubleTapEnabledWhileControlsVisible:
           seekOnDoubleTapEnabledWhileControlsVisible ??
-              this.seekOnDoubleTapEnabledWhileControlsVisible,
-      seekOnDoubleTapLayoutTapsRatios: seekOnDoubleTapLayoutTapsRatios ??
+          this.seekOnDoubleTapEnabledWhileControlsVisible,
+      seekOnDoubleTapLayoutTapsRatios:
+          seekOnDoubleTapLayoutTapsRatios ??
           this.seekOnDoubleTapLayoutTapsRatios,
-      seekOnDoubleTapLayoutWidgetRatios: seekOnDoubleTapLayoutWidgetRatios ??
+      seekOnDoubleTapLayoutWidgetRatios:
+          seekOnDoubleTapLayoutWidgetRatios ??
           this.seekOnDoubleTapLayoutWidgetRatios,
-      seekOnDoubleTapBackwardDuration: seekOnDoubleTapBackwardDuration ??
+      seekOnDoubleTapBackwardDuration:
+          seekOnDoubleTapBackwardDuration ??
           this.seekOnDoubleTapBackwardDuration,
       seekOnDoubleTapForwardDuration:
           seekOnDoubleTapForwardDuration ?? this.seekOnDoubleTapForwardDuration,
@@ -444,9 +474,15 @@ class JellyflixVideoControlsThemeData {
       seekBarThumbSize: seekBarThumbSize ?? this.seekBarThumbSize,
       seekBarThumbColor: seekBarThumbColor ?? this.seekBarThumbColor,
       seekBarAlignment: seekBarAlignment ?? this.seekBarAlignment,
+      seekBarMarkers: seekBarMarkers ?? this.seekBarMarkers,
+      seekBarMarkerNames: seekBarMarkerNames ?? this.seekBarMarkerNames,
+      seekBarMarkerSize: seekBarMarkerSize ?? this.seekBarMarkerSize,
+      seekBarMarkerColor: seekBarMarkerColor ?? this.seekBarMarkerColor,
+      seekBarMarkerSnappingFactor:
+          seekBarMarkerSnappingFactor ?? this.seekBarMarkerSnappingFactor,
       shiftSubtitlesOnControlsVisibilityChange:
           shiftSubtitlesOnControlsVisibilityChange ??
-              this.shiftSubtitlesOnControlsVisibilityChange,
+          this.shiftSubtitlesOnControlsVisibilityChange,
     );
   }
 }
@@ -699,7 +735,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
 
   void onHorizontalDragEnd() {
     if (swipeDuration != 0) {
-      Duration newPosition = controller(context).player.state.position +
+      Duration newPosition =
+          controller(context).player.state.position +
           Duration(seconds: swipeDuration);
       newPosition = newPosition.clamp(
         Duration.zero,
@@ -778,12 +815,12 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
         _brightnessValue = await ScreenBrightnessPlatform.instance.application;
         ScreenBrightnessPlatform.instance.onApplicationScreenBrightnessChanged
             .listen((value) {
-          if (mounted) {
-            setState(() {
-              _brightnessValue = value;
+              if (mounted) {
+                setState(() {
+                  _brightnessValue = value;
+                });
+              }
             });
-          }
-        });
       } catch (_) {}
     });
     // --------------------------------------------------
@@ -838,7 +875,7 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
   Widget build(BuildContext context) {
     var seekOnDoubleTapEnabledWhileControlsAreVisible =
         (_theme(context).seekOnDoubleTap &&
-            _theme(context).seekOnDoubleTapEnabledWhileControlsVisible);
+        _theme(context).seekOnDoubleTapEnabledWhileControlsVisible);
     assert(
       _theme(context).seekOnDoubleTapLayoutTapsRatios.length == 3,
       "The number of seekOnDoubleTapLayoutTapsRatios must be 3, i.e. [1, 1, 1]",
@@ -952,7 +989,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                         _theme(
                                           context,
                                         ).gesturesEnabledWhileControlsVisible)) {
-                                  final brightness = _brightnessValue -
+                                  final brightness =
+                                      _brightnessValue -
                                       delta /
                                           _theme(
                                             context,
@@ -968,7 +1006,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                         _theme(
                                           context,
                                         ).gesturesEnabledWhileControlsVisible)) {
-                                  final volume = _volumeValue -
+                                  final volume =
+                                      _volumeValue -
                                       delta /
                                           _theme(
                                             context,
@@ -984,12 +1023,13 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                       ),
                       if (mount)
                         Padding(
-                          padding: _theme(context).padding ??
+                          padding:
+                              _theme(context).padding ??
                               (
-                                  // Add padding in fullscreen!
-                                  isFullscreen(context)
-                                      ? MediaQuery.of(context).padding
-                                      : EdgeInsets.zero),
+                              // Add padding in fullscreen!
+                              isFullscreen(context)
+                                  ? MediaQuery.of(context).padding
+                                  : EdgeInsets.zero),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -1020,8 +1060,9 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                           MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
-                                      children:
-                                          _theme(context).primaryButtonBar,
+                                      children: _theme(
+                                        context,
+                                      ).primaryButtonBar,
                                     ),
                                   ),
                                 ),
@@ -1030,28 +1071,38 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                 alignment: Alignment.bottomCenter,
                                 children: [
                                   if (_theme(context).displaySeekBar)
-                                    JellyflixSeekBar(
-                                      onSeekStart: () {
-                                        _timer?.cancel();
-                                      },
-                                      onSeekEnd: () {
-                                        _timer = Timer(
-                                          _theme(context).controlsHoverDuration,
-                                          () {
-                                            if (mounted) {
-                                              setState(() {
-                                                visible = false;
-                                              });
-                                              unshiftSubtitle();
-                                            }
-                                          },
-                                        );
-                                      },
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        bottom:
+                                            _theme(context).buttonBarHeight -
+                                            5.0,
+                                      ),
+                                      child: JellyflixSeekBar(
+                                        onSeekStart: () {
+                                          _timer?.cancel();
+                                        },
+                                        onSeekEnd: () {
+                                          _timer = Timer(
+                                            _theme(
+                                              context,
+                                            ).controlsHoverDuration,
+                                            () {
+                                              if (mounted) {
+                                                setState(() {
+                                                  visible = false;
+                                                });
+                                                unshiftSubtitle();
+                                              }
+                                            },
+                                          );
+                                        },
+                                      ),
                                     ),
                                   Container(
                                     height: _theme(context).buttonBarHeight,
-                                    margin:
-                                        _theme(context).bottomButtonBarMargin,
+                                    margin: _theme(
+                                      context,
+                                    ).bottomButtonBarMargin,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.max,
                                       mainAxisAlignment:
@@ -1081,8 +1132,13 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                           alignment: Alignment.bottomCenter,
                           children: [
                             if (_theme(context).displaySeekBar)
-                              JellyflixSeekBar(
-                                delta: _seekBarDeltaValueNotifier,
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: _theme(context).buttonBarHeight + 8.0,
+                                ),
+                                child: JellyflixSeekBar(
+                                  delta: _seekBarDeltaValueNotifier,
+                                ),
                               ),
                             Container(
                               height: _theme(context).buttonBarHeight,
@@ -1095,12 +1151,13 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                 // Buffering Indicator.
                 IgnorePointer(
                   child: Padding(
-                    padding: _theme(context).padding ??
+                    padding:
+                        _theme(context).padding ??
                         (
-                            // Add padding in fullscreen!
-                            isFullscreen(context)
-                                ? MediaQuery.of(context).padding
-                                : EdgeInsets.zero),
+                        // Add padding in fullscreen!
+                        isFullscreen(context)
+                            ? MediaQuery.of(context).padding
+                            : EdgeInsets.zero),
                     child: Column(
                       children: [
                         Container(
@@ -1114,15 +1171,17 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                 begin: 0.0,
                                 end: buffering ? 1.0 : 0.0,
                               ),
-                              duration:
-                                  _theme(context).controlsTransitionDuration,
+                              duration: _theme(
+                                context,
+                              ).controlsTransitionDuration,
                               builder: (context, value, child) {
                                 // Only mount the buffering indicator if the opacity is greater than 0.0.
                                 // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
                                 if (value > 0.0) {
                                   return Opacity(
                                     opacity: value,
-                                    child: _theme(context)
+                                    child:
+                                        _theme(context)
                                             .bufferingIndicatorBuilder
                                             ?.call(context) ??
                                         child!,
@@ -1148,7 +1207,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                 IgnorePointer(
                   child: AnimatedOpacity(
                     curve: Curves.easeInOut,
-                    opacity: (!mount ||
+                    opacity:
+                        (!mount ||
                                 _theme(
                                   context,
                                 ).gesturesEnabledWhileControlsVisible) &&
@@ -1156,7 +1216,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                         ? 1.0
                         : 0.0,
                     duration: _theme(context).controlsTransitionDuration,
-                    child: _theme(
+                    child:
+                        _theme(
                           context,
                         ).volumeIndicatorBuilder?.call(context, _volumeValue) ??
                         Container(
@@ -1180,8 +1241,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                   _volumeValue == 0.0
                                       ? Icons.volume_off
                                       : _volumeValue < 0.5
-                                          ? Icons.volume_down
-                                          : Icons.volume_up,
+                                      ? Icons.volume_down
+                                      : Icons.volume_up,
                                   color: const Color(0xFFFFFFFF),
                                   size: 24.0,
                                 ),
@@ -1207,7 +1268,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                 IgnorePointer(
                   child: AnimatedOpacity(
                     curve: Curves.easeInOut,
-                    opacity: (!mount ||
+                    opacity:
+                        (!mount ||
                                 _theme(
                                   context,
                                 ).gesturesEnabledWhileControlsVisible) &&
@@ -1215,10 +1277,11 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                         ? 1.0
                         : 0.0,
                     duration: _theme(context).controlsTransitionDuration,
-                    child: _theme(context).brightnessIndicatorBuilder?.call(
-                              context,
-                              _brightnessValue,
-                            ) ??
+                    child:
+                        _theme(context).brightnessIndicatorBuilder?.call(
+                          context,
+                          _brightnessValue,
+                        ) ??
                         Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
@@ -1240,8 +1303,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                   _brightnessValue < 1.0 / 3.0
                                       ? Icons.brightness_low
                                       : _brightnessValue < 2.0 / 3.0
-                                          ? Icons.brightness_medium
-                                          : Icons.brightness_high,
+                                      ? Icons.brightness_medium
+                                      : Icons.brightness_high,
                                   color: const Color(0xFFFFFFFF),
                                   size: 24.0,
                                 ),
@@ -1266,12 +1329,13 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                 // Speedup Indicator.
                 IgnorePointer(
                   child: Padding(
-                    padding: _theme(context).padding ??
+                    padding:
+                        _theme(context).padding ??
                         (
-                            // Add padding in fullscreen!
-                            isFullscreen(context)
-                                ? MediaQuery.of(context).padding
-                                : EdgeInsets.zero),
+                        // Add padding in fullscreen!
+                        isFullscreen(context)
+                            ? MediaQuery.of(context).padding
+                            : EdgeInsets.zero),
                     child: Column(
                       children: [
                         Container(
@@ -1280,15 +1344,15 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                         ),
                         Expanded(
                           child: AnimatedOpacity(
-                            duration:
-                                _theme(context).controlsTransitionDuration,
+                            duration: _theme(
+                              context,
+                            ).controlsTransitionDuration,
                             opacity: _speedUpIndicator ? 1 : 0,
-                            child: _theme(context)
-                                    .speedUpIndicatorBuilder
-                                    ?.call(
-                                      context,
-                                      _theme(context).speedUpFactor,
-                                    ) ??
+                            child:
+                                _theme(context).speedUpIndicatorBuilder?.call(
+                                  context,
+                                  _theme(context).speedUpFactor,
+                                ) ??
                                 Container(
                                   alignment: Alignment.topCenter,
                                   child: Container(
@@ -1348,10 +1412,11 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                   child: AnimatedOpacity(
                     duration: _theme(context).controlsTransitionDuration,
                     opacity: showSwipeDuration ? 1 : 0,
-                    child: _theme(context).seekIndicatorBuilder?.call(
-                              context,
-                              Duration(seconds: swipeDuration),
-                            ) ??
+                    child:
+                        _theme(context).seekIndicatorBuilder?.call(
+                          context,
+                          Duration(seconds: swipeDuration),
+                        ) ??
                         Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
@@ -1387,9 +1452,7 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                             child: _mountSeekBackwardButton
                                 ? AnimatedOpacity(
                                     opacity: _hideSeekBackwardButton ? 0 : 1.0,
-                                    duration: const Duration(
-                                      milliseconds: 200,
-                                    ),
+                                    duration: const Duration(milliseconds: 200),
                                     child: _BackwardSeekIndicator(
                                       duration: _theme(
                                         context,
@@ -1413,7 +1476,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                         setState(() {
                                           _hideSeekBackwardButton = true;
                                         });
-                                        var result = controller(
+                                        var result =
+                                            controller(
                                               context,
                                             ).player.state.position -
                                             value;
@@ -1423,9 +1487,7 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                             context,
                                           ).player.state.duration,
                                         );
-                                        controller(
-                                          context,
-                                        ).player.seek(result);
+                                        controller(context).player.seek(result);
                                       },
                                     ),
                                   )
@@ -1448,9 +1510,7 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                             child: _mountSeekForwardButton
                                 ? AnimatedOpacity(
                                     opacity: _hideSeekForwardButton ? 0 : 1.0,
-                                    duration: const Duration(
-                                      milliseconds: 200,
-                                    ),
+                                    duration: const Duration(milliseconds: 200),
                                     child: _ForwardSeekIndicator(
                                       duration: _theme(
                                         context,
@@ -1476,7 +1536,8 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                           _hideSeekForwardButton = true;
                                         });
 
-                                        var result = controller(
+                                        var result =
+                                            controller(
                                               context,
                                             ).player.state.position +
                                             value;
@@ -1486,9 +1547,7 @@ class _JellyflixVideoControlsState extends State<_JellyflixVideoControls> {
                                             context,
                                           ).player.state.duration,
                                         );
-                                        controller(
-                                          context,
-                                        ).player.seek(result);
+                                        controller(context).player.seek(result);
                                       },
                                     ),
                                   )
@@ -1605,7 +1664,20 @@ class JellyflixSeekBarState extends State<JellyflixSeekBar> {
   }
 
   void onPointerMove(PointerMoveEvent e, BoxConstraints constraints) {
-    final percent = e.localPosition.dx / constraints.maxWidth;
+    double percent = e.localPosition.dx / constraints.maxWidth;
+
+    // Snap to markers if close enough
+    for (double marker in _theme(context).seekBarMarkers) {
+      double markerPosition = duration.inMilliseconds > 0
+          ? marker / duration.inMilliseconds
+          : 0.0;
+      if ((percent - markerPosition).abs() <
+          _theme(context).seekBarMarkerSnappingFactor) {
+        percent = markerPosition;
+        break;
+      }
+    }
+
     setState(() {
       tapped = true;
       slider = percent.clamp(0.0, 1.0);
@@ -1631,7 +1703,20 @@ class JellyflixSeekBarState extends State<JellyflixSeekBar> {
   }
 
   void onPanStart(DragStartDetails e, BoxConstraints constraints) {
-    final percent = e.localPosition.dx / constraints.maxWidth;
+    double percent = e.localPosition.dx / constraints.maxWidth;
+
+    // Snap to markers if close enough
+    for (double marker in _theme(context).seekBarMarkers) {
+      double markerPosition = duration.inMilliseconds > 0
+          ? marker / duration.inMilliseconds
+          : 0.0;
+      if ((percent - markerPosition).abs() <
+          _theme(context).seekBarMarkerSnappingFactor) {
+        percent = markerPosition;
+        break;
+      }
+    }
+
     setState(() {
       tapped = true;
       slider = percent.clamp(0.0, 1.0);
@@ -1639,7 +1724,20 @@ class JellyflixSeekBarState extends State<JellyflixSeekBar> {
   }
 
   void onPanDown(DragDownDetails e, BoxConstraints constraints) {
-    final percent = e.localPosition.dx / constraints.maxWidth;
+    double percent = e.localPosition.dx / constraints.maxWidth;
+
+    // Snap to markers if close enough
+    for (double marker in _theme(context).seekBarMarkers) {
+      double markerPosition = duration.inMilliseconds > 0
+          ? marker / duration.inMilliseconds
+          : 0.0;
+      if ((percent - markerPosition).abs() <
+          _theme(context).seekBarMarkerSnappingFactor) {
+        percent = markerPosition;
+        break;
+      }
+    }
+
     setState(() {
       tapped = true;
       slider = percent.clamp(0.0, 1.0);
@@ -1647,7 +1745,20 @@ class JellyflixSeekBarState extends State<JellyflixSeekBar> {
   }
 
   void onPanUpdate(DragUpdateDetails e, BoxConstraints constraints) {
-    final percent = e.localPosition.dx / constraints.maxWidth;
+    double percent = e.localPosition.dx / constraints.maxWidth;
+
+    // Snap to markers if close enough
+    for (double marker in _theme(context).seekBarMarkers) {
+      double markerPosition = duration.inMilliseconds > 0
+          ? marker / duration.inMilliseconds
+          : 0.0;
+      if ((percent - markerPosition).abs() <
+          _theme(context).seekBarMarkerSnappingFactor) {
+        percent = markerPosition;
+        break;
+      }
+    }
+
     setState(() {
       tapped = true;
       slider = percent.clamp(0.0, 1.0);
@@ -1676,79 +1787,183 @@ class JellyflixSeekBarState extends State<JellyflixSeekBar> {
 
   @override
   Widget build(BuildContext context) {
+    const double barWidth = 6.0;
+    const double barHorizontalMargins = 6.0;
+    const double dragBarWidth = barWidth + (barHorizontalMargins * 2);
+
     return Container(
       clipBehavior: Clip.none,
       margin: _theme(context).seekBarMargin,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: LayoutBuilder(
-        builder: (context, constraints) => MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onHorizontalDragUpdate: (_) {},
-            onPanStart: (e) => onPanStart(e, constraints),
-            onPanDown: (e) => onPanDown(e, constraints),
-            onPanUpdate: (e) => onPanUpdate(e, constraints),
-            child: Listener(
-              onPointerMove: (e) => onPointerMove(e, constraints),
-              onPointerDown: (e) => onPointerDown(),
-              onPointerUp: (e) => onPointerUp(),
-              child: Container(
-                color: Colors.transparent,
-                width: constraints.maxWidth,
-                alignment: _theme(context).seekBarAlignment,
-                height: _theme(context).seekBarContainerHeight,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    Container(
-                      width: constraints.maxWidth,
-                      height: _theme(context).seekBarHeight,
-                      alignment: Alignment.bottomLeft,
-                      color: _theme(context).seekBarColor,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.bottomLeft,
+        builder: (context, constraints) {
+          final sliderWidth = constraints.maxWidth;
+          final sliderHeight = _theme(context).seekBarHeight;
+
+          // Calculate progress
+          final double progress = tapped ? slider : positionPercent;
+
+          // Calculate available space for left and right boxes (excluding the drag bar)
+          final double availableWidth = sliderWidth - dragBarWidth;
+          final double leftBoxWidth = max(
+            0,
+            min(availableWidth, availableWidth * progress),
+          );
+          final double rightBoxWidth = max(0, availableWidth - leftBoxWidth);
+
+          return MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onHorizontalDragUpdate: (_) {},
+              onPanStart: (e) => onPanStart(e, constraints),
+              onPanDown: (e) => onPanDown(e, constraints),
+              onPanUpdate: (e) => onPanUpdate(e, constraints),
+              child: Listener(
+                onPointerMove: (e) => onPointerMove(e, constraints),
+                onPointerDown: (e) => onPointerDown(),
+                onPointerUp: (e) => onPointerUp(),
+                child: Container(
+                  color: Colors.transparent,
+                  width: constraints.maxWidth,
+                  alignment: _theme(context).seekBarAlignment,
+                  height: _theme(context).seekBarContainerHeight,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: _theme(context).seekBarAlignment,
+                    children: [
+                      // New seek bar design with left/right boxes and draggable bar
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          // Left Box (position)
                           Container(
-                            width: constraints.maxWidth * bufferPercent,
-                            color: _theme(context).seekBarBufferColor,
+                            width: leftBoxWidth,
+                            height: sliderHeight,
+                            decoration: BoxDecoration(
+                              color: _theme(context).seekBarPositionColor,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            margin: const EdgeInsets.only(
+                              right: barHorizontalMargins,
+                            ),
                           ),
+                          // Draggable Bar
                           Container(
-                            width: tapped
-                                ? constraints.maxWidth * slider
-                                : constraints.maxWidth * positionPercent,
-                            color: _theme(context).seekBarPositionColor,
+                            width: barWidth,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          // Right Box (background with buffer)
+                          Stack(
+                            children: [
+                              // Buffer indicator
+                              Container(
+                                width: rightBoxWidth,
+                                height: sliderHeight,
+                                decoration: BoxDecoration(
+                                  color: _theme(
+                                    context,
+                                  ).seekBarBufferColor.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                margin: const EdgeInsets.only(
+                                  left: barHorizontalMargins,
+                                ),
+                              ),
+                              // Background
+                              Container(
+                                width: rightBoxWidth,
+                                height: sliderHeight,
+                                decoration: BoxDecoration(
+                                  color: _theme(context).seekBarColor,
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                margin: const EdgeInsets.only(
+                                  left: barHorizontalMargins,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                    Positioned(
-                      left: tapped
-                          ? (constraints.maxWidth -
-                                  _theme(context).seekBarThumbSize / 2) *
-                              slider
-                          : (constraints.maxWidth -
-                                  _theme(context).seekBarThumbSize / 2) *
-                              positionPercent,
-                      bottom: -1.0 * _theme(context).seekBarThumbSize / 2 +
-                          _theme(context).seekBarHeight / 2,
-                      child: Container(
-                        width: _theme(context).seekBarThumbSize,
-                        height: _theme(context).seekBarThumbSize,
-                        decoration: BoxDecoration(
-                          color: _theme(context).seekBarThumbColor,
-                          borderRadius: BorderRadius.circular(
-                            _theme(context).seekBarThumbSize / 2,
+                      // Marker circles
+                      ..._theme(context).seekBarMarkers.map((marker) {
+                        double markerPosition = duration.inMilliseconds > 0
+                            ? marker / duration.inMilliseconds
+                            : 0.0;
+                        double markerOffset =
+                            markerPosition * availableWidth +
+                            (dragBarWidth / 2);
+                        double circleSize = _theme(context).seekBarMarkerSize;
+
+                        return Positioned(
+                          left: markerOffset - (circleSize / 2),
+                          top:
+                              (_theme(context).seekBarContainerHeight / 2) -
+                              (circleSize / 2),
+                          child: Container(
+                            width: circleSize,
+                            height: circleSize,
+                            decoration: BoxDecoration(
+                              color: _theme(context).seekBarMarkerColor,
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
+                        );
+                      }),
+                      // Marker names
+                      ..._theme(context).seekBarMarkers.asMap().entries.map((
+                        entry,
+                      ) {
+                        int index = entry.key;
+                        double marker = entry.value;
+                        double markerPosition = duration.inMilliseconds > 0
+                            ? marker / duration.inMilliseconds
+                            : 0.0;
+                        double markerOffset =
+                            markerPosition * availableWidth +
+                            (dragBarWidth / 2);
+
+                        double currentProgress = tapped
+                            ? slider
+                            : positionPercent;
+                        bool isOnMarker =
+                            (currentProgress - markerPosition).abs() <
+                            _theme(context).seekBarMarkerSnappingFactor;
+
+                        return Positioned(
+                          left: markerOffset < sliderWidth / 2
+                              ? markerOffset
+                              : null,
+                          right: markerOffset >= sliderWidth / 2
+                              ? sliderWidth - markerOffset
+                              : null,
+                          top: -20.0,
+                          child:
+                              isOnMarker &&
+                                  index <
+                                      _theme(context).seekBarMarkerNames.length
+                              ? Text(
+                                  _theme(context).seekBarMarkerNames[index],
+                                  style: const TextStyle(
+                                    fontSize: 12.0,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -29,10 +29,10 @@ Widget JellyflixDesktopVideoControls(VideoState state) {
 /// [JellyflixDesktopVideoControlsThemeData] available in this [context].
 JellyflixDesktopVideoControlsThemeData _theme(BuildContext context) =>
     FullscreenInheritedWidget.maybeOf(context) == null
-        ? JellyflixDesktopVideoControlsTheme.maybeOf(context)?.normal ??
-            kDefaultJellyflixDesktopVideoControlsThemeData
-        : JellyflixDesktopVideoControlsTheme.maybeOf(context)?.fullscreen ??
-            kDefaultJellyflixDesktopVideoControlsThemeDataFullscreen;
+    ? JellyflixDesktopVideoControlsTheme.maybeOf(context)?.normal ??
+          kDefaultJellyflixDesktopVideoControlsThemeData
+    : JellyflixDesktopVideoControlsTheme.maybeOf(context)?.fullscreen ??
+          kDefaultJellyflixDesktopVideoControlsThemeDataFullscreen;
 
 /// Default [JellyflixDesktopVideoControlsThemeData].
 const kDefaultJellyflixDesktopVideoControlsThemeData =
@@ -180,6 +180,23 @@ class JellyflixDesktopVideoControlsThemeData {
   /// Whether to shift the subtitles upwards when the controls are visible.
   final bool shiftSubtitlesOnControlsVisibilityChange;
 
+  // MARKERS
+
+  /// Marker timestamps in milliseconds.
+  final List<double> seekBarMarkers;
+
+  /// Names for each marker.
+  final List<String> seekBarMarkerNames;
+
+  /// Size of the marker circles.
+  final double seekBarMarkerSize;
+
+  /// Color of the marker circles.
+  final Color seekBarMarkerColor;
+
+  /// Snapping factor for markers (0.0 - 1.0).
+  final double seekBarMarkerSnappingFactor;
+
   /// {@macro material_desktop_video_controls_theme_data}
   const JellyflixDesktopVideoControlsThemeData({
     this.displaySeekBar = true,
@@ -229,6 +246,11 @@ class JellyflixDesktopVideoControlsThemeData {
     this.volumeBarThumbColor = const Color(0xFFFFFFFF),
     this.volumeBarTransitionDuration = const Duration(milliseconds: 150),
     this.shiftSubtitlesOnControlsVisibilityChange = true,
+    this.seekBarMarkers = const [],
+    this.seekBarMarkerNames = const [],
+    this.seekBarMarkerSize = 6.0,
+    this.seekBarMarkerColor = const Color(0xFFFFFFFF),
+    this.seekBarMarkerSnappingFactor = 0.01,
   });
 
   /// Creates a copy of this [JellyflixDesktopVideoControlsThemeData] with the given fields replaced by the non-null parameter values.
@@ -270,14 +292,20 @@ class JellyflixDesktopVideoControlsThemeData {
     Color? volumeBarThumbColor,
     Duration? volumeBarTransitionDuration,
     bool? shiftSubtitlesOnControlsVisibilityChange,
+    List<double>? seekBarMarkers,
+    List<String>? seekBarMarkerNames,
+    double? seekBarMarkerSize,
+    Color? seekBarMarkerColor,
+    double? seekBarMarkerSnappingFactor,
   }) {
     return JellyflixDesktopVideoControlsThemeData(
       displaySeekBar: displaySeekBar ?? this.displaySeekBar,
-      automaticallyImplySkipNextButton: automaticallyImplySkipNextButton ??
+      automaticallyImplySkipNextButton:
+          automaticallyImplySkipNextButton ??
           this.automaticallyImplySkipNextButton,
       automaticallyImplySkipPreviousButton:
           automaticallyImplySkipPreviousButton ??
-              this.automaticallyImplySkipPreviousButton,
+          this.automaticallyImplySkipPreviousButton,
       toggleFullscreenOnDoublePress:
           toggleFullscreenOnDoublePress ?? this.toggleFullscreenOnDoublePress,
       playAndPauseOnTap: playAndPauseOnTap ?? this.playAndPauseOnTap,
@@ -323,7 +351,13 @@ class JellyflixDesktopVideoControlsThemeData {
           volumeBarTransitionDuration ?? this.volumeBarTransitionDuration,
       shiftSubtitlesOnControlsVisibilityChange:
           shiftSubtitlesOnControlsVisibilityChange ??
-              this.shiftSubtitlesOnControlsVisibilityChange,
+          this.shiftSubtitlesOnControlsVisibilityChange,
+      seekBarMarkers: seekBarMarkers ?? this.seekBarMarkers,
+      seekBarMarkerNames: seekBarMarkerNames ?? this.seekBarMarkerNames,
+      seekBarMarkerSize: seekBarMarkerSize ?? this.seekBarMarkerSize,
+      seekBarMarkerColor: seekBarMarkerColor ?? this.seekBarMarkerColor,
+      seekBarMarkerSnappingFactor:
+          seekBarMarkerSnappingFactor ?? this.seekBarMarkerSnappingFactor,
     );
   }
 }
@@ -344,8 +378,10 @@ class JellyflixDesktopVideoControlsTheme extends InheritedWidget {
   });
 
   static JellyflixDesktopVideoControlsTheme? maybeOf(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<
-        JellyflixDesktopVideoControlsTheme>();
+    return context
+        .dependOnInheritedWidgetOfExactType<
+          JellyflixDesktopVideoControlsTheme
+        >();
   }
 
   static JellyflixDesktopVideoControlsTheme of(BuildContext context) {
@@ -405,37 +441,28 @@ class _JellyflixDesktopVideoControlsState
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (subscriptions.isEmpty) {
-      subscriptions.addAll(
-        [
-          controller(context).player.stream.playlist.listen(
-            (event) {
-              setState(() {
-                playlist = event;
-              });
-            },
-          ),
-          controller(context).player.stream.buffering.listen(
-            (event) {
-              setState(() {
-                buffering = event;
-              });
-            },
-          ),
-        ],
-      );
+      subscriptions.addAll([
+        controller(context).player.stream.playlist.listen((event) {
+          setState(() {
+            playlist = event;
+          });
+        }),
+        controller(context).player.stream.buffering.listen((event) {
+          setState(() {
+            buffering = event;
+          });
+        }),
+      ]);
 
       if (_theme(context).visibleOnMount) {
-        _timer = Timer(
-          _theme(context).controlsHoverDuration,
-          () {
-            if (mounted) {
-              setState(() {
-                visible = false;
-              });
-              unshiftSubtitle();
-            }
-          },
-        );
+        _timer = Timer(_theme(context).controlsHoverDuration, () {
+          if (mounted) {
+            setState(() {
+              visible = false;
+            });
+            unshiftSubtitle();
+          }
+        });
       }
     }
   }
@@ -452,12 +479,7 @@ class _JellyflixDesktopVideoControlsState
     if (_theme(context).shiftSubtitlesOnControlsVisibilityChange) {
       state(context).setSubtitleViewPadding(
         state(context).widget.subtitleViewConfiguration.padding +
-            EdgeInsets.fromLTRB(
-              0.0,
-              0.0,
-              0.0,
-              subtitleVerticalShiftOffset,
-            ),
+            EdgeInsets.fromLTRB(0.0, 0.0, 0.0, subtitleVerticalShiftOffset),
       );
     }
   }
@@ -522,7 +544,8 @@ class _JellyflixDesktopVideoControlsState
         highlightColor: const Color(0x00000000),
       ),
       child: CallbackShortcuts(
-        bindings: _theme(context).keyboardShortcuts ??
+        bindings:
+            _theme(context).keyboardShortcuts ??
             {
               // Default key-board shortcuts.
               // https://support.google.com/youtube/answer/7631406
@@ -534,27 +557,33 @@ class _JellyflixDesktopVideoControlsState
                   controller(context).player.playOrPause(),
               const SingleActivator(LogicalKeyboardKey.mediaTrackNext): () =>
                   controller(context).player.next(),
-              const SingleActivator(LogicalKeyboardKey.mediaTrackPrevious):
-                  () => controller(context).player.previous(),
+              const SingleActivator(
+                LogicalKeyboardKey.mediaTrackPrevious,
+              ): () =>
+                  controller(context).player.previous(),
               const SingleActivator(LogicalKeyboardKey.space): () =>
                   controller(context).player.playOrPause(),
               const SingleActivator(LogicalKeyboardKey.keyJ): () {
-                final rate = controller(context).player.state.position -
+                final rate =
+                    controller(context).player.state.position -
                     const Duration(seconds: 10);
                 controller(context).player.seek(rate);
               },
               const SingleActivator(LogicalKeyboardKey.keyI): () {
-                final rate = controller(context).player.state.position +
+                final rate =
+                    controller(context).player.state.position +
                     const Duration(seconds: 10);
                 controller(context).player.seek(rate);
               },
               const SingleActivator(LogicalKeyboardKey.arrowLeft): () {
-                final rate = controller(context).player.state.position -
+                final rate =
+                    controller(context).player.state.position -
                     const Duration(seconds: 2);
                 controller(context).player.seek(rate);
               },
               const SingleActivator(LogicalKeyboardKey.arrowRight): () {
-                final rate = controller(context).player.state.position +
+                final rate =
+                    controller(context).player.state.position +
                     const Duration(seconds: 2);
                 controller(context).player.seek(rate);
               },
@@ -592,16 +621,16 @@ class _JellyflixDesktopVideoControlsState
                           if (e.delta.dy > 0) {
                             final volume =
                                 controller(context).player.state.volume - 5.0;
-                            controller(context)
-                                .player
-                                .setVolume(volume.clamp(0.0, 100.0));
+                            controller(
+                              context,
+                            ).player.setVolume(volume.clamp(0.0, 100.0));
                           }
                           if (e.delta.dy < 0) {
                             final volume =
                                 controller(context).player.state.volume + 5.0;
-                            controller(context)
-                                .player
-                                .setVolume(volume.clamp(0.0, 100.0));
+                            controller(
+                              context,
+                            ).player.setVolume(volume.clamp(0.0, 100.0));
                           }
                         }
                       }
@@ -612,8 +641,9 @@ class _JellyflixDesktopVideoControlsState
                       : (TapDownDetails details) {
                           final RenderBox box =
                               context.findRenderObject() as RenderBox;
-                          final Offset localPosition =
-                              box.globalToLocal(details.globalPosition);
+                          final Offset localPosition = box.globalToLocal(
+                            details.globalPosition,
+                          );
                           const double tapPadding = 10.0;
                           if (!mount ||
                               localPosition.dy <
@@ -640,24 +670,24 @@ class _JellyflixDesktopVideoControlsState
                           if (e.delta.dy > 0) {
                             final volume =
                                 controller(context).player.state.volume - 5.0;
-                            controller(context)
-                                .player
-                                .setVolume(volume.clamp(0.0, 100.0));
+                            controller(
+                              context,
+                            ).player.setVolume(volume.clamp(0.0, 100.0));
                           }
                           if (e.delta.dy < 0) {
                             final volume =
                                 controller(context).player.state.volume + 5.0;
-                            controller(context)
-                                .player
-                                .setVolume(volume.clamp(0.0, 100.0));
+                            controller(
+                              context,
+                            ).player.setVolume(volume.clamp(0.0, 100.0));
                           }
                         }
                       : null,
                   child: MouseRegion(
                     cursor:
                         (_theme(context).hideMouseOnControlsRemoval && !mount)
-                            ? SystemMouseCursors.none
-                            : SystemMouseCursors.basic,
+                        ? SystemMouseCursors.none
+                        : SystemMouseCursors.basic,
                     onHover: (_) => onHover(),
                     onEnter: (_) => onEnter(),
                     onExit: (_) => onExit(),
@@ -685,10 +715,7 @@ class _JellyflixDesktopVideoControlsState
                                     gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
-                                      stops: [
-                                        0.0,
-                                        0.2,
-                                      ],
+                                      stops: [0.0, 0.2],
                                       colors: [
                                         Color(0x61000000),
                                         Color(0x00000000),
@@ -703,10 +730,7 @@ class _JellyflixDesktopVideoControlsState
                                     gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
-                                      stops: [
-                                        0.5,
-                                        1.0,
-                                      ],
+                                      stops: [0.5, 1.0],
                                       colors: [
                                         Color(0x00000000),
                                         Color(0x61000000),
@@ -716,12 +740,13 @@ class _JellyflixDesktopVideoControlsState
                                 ),
                               if (mount)
                                 Padding(
-                                  padding: _theme(context).padding ??
+                                  padding:
+                                      _theme(context).padding ??
                                       (
-                                          // Add padding in fullscreen!
-                                          isFullscreen(context)
-                                              ? MediaQuery.of(context).padding
-                                              : EdgeInsets.zero),
+                                      // Add padding in fullscreen!
+                                      isFullscreen(context)
+                                          ? MediaQuery.of(context).padding
+                                          : EdgeInsets.zero),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -729,16 +754,18 @@ class _JellyflixDesktopVideoControlsState
                                     children: [
                                       Container(
                                         height: _theme(context).buttonBarHeight,
-                                        margin:
-                                            _theme(context).topButtonBarMargin,
+                                        margin: _theme(
+                                          context,
+                                        ).topButtonBarMargin,
                                         child: Row(
                                           mainAxisSize: MainAxisSize.max,
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
-                                          children:
-                                              _theme(context).topButtonBar,
+                                          children: _theme(
+                                            context,
+                                          ).topButtonBar,
                                         ),
                                       ),
                                       // Only display [primaryButtonBar] if [buffering] is false.
@@ -746,8 +773,9 @@ class _JellyflixDesktopVideoControlsState
                                         child: AnimatedOpacity(
                                           curve: Curves.easeInOut,
                                           opacity: buffering ? 0.0 : 1.0,
-                                          duration: _theme(context)
-                                              .controlsTransitionDuration,
+                                          duration: _theme(
+                                            context,
+                                          ).controlsTransitionDuration,
                                           child: Center(
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
@@ -755,17 +783,19 @@ class _JellyflixDesktopVideoControlsState
                                                   MainAxisAlignment.center,
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.center,
-                                              children: _theme(context)
-                                                  .primaryButtonBar,
+                                              children: _theme(
+                                                context,
+                                              ).primaryButtonBar,
                                             ),
                                           ),
                                         ),
                                       ),
                                       if (_theme(context).displaySeekBar)
                                         Transform.translate(
-                                          offset: _theme(context)
-                                                  .bottomButtonBar
-                                                  .isNotEmpty
+                                          offset:
+                                              _theme(
+                                                context,
+                                              ).bottomButtonBar.isNotEmpty
                                               ? const Offset(0.0, 16.0)
                                               : Offset.zero,
                                           child: JellyflixDesktopSeekBar(
@@ -774,8 +804,9 @@ class _JellyflixDesktopVideoControlsState
                                             },
                                             onSeekEnd: () {
                                               _timer = Timer(
-                                                _theme(context)
-                                                    .controlsHoverDuration,
+                                                _theme(
+                                                  context,
+                                                ).controlsHoverDuration,
                                                 () {
                                                   if (mounted) {
                                                     setState(() {
@@ -786,24 +817,42 @@ class _JellyflixDesktopVideoControlsState
                                                 },
                                               );
                                             },
+                                            markers: _theme(
+                                              context,
+                                            ).seekBarMarkers,
+                                            markerNames: _theme(
+                                              context,
+                                            ).seekBarMarkerNames,
+                                            circleSize: _theme(
+                                              context,
+                                            ).seekBarMarkerSize,
+                                            circleColor: _theme(
+                                              context,
+                                            ).seekBarMarkerColor,
+                                            snappingFactor: _theme(
+                                              context,
+                                            ).seekBarMarkerSnappingFactor,
                                           ),
                                         ),
-                                      if (_theme(context)
-                                          .bottomButtonBar
-                                          .isNotEmpty)
+                                      if (_theme(
+                                        context,
+                                      ).bottomButtonBar.isNotEmpty)
                                         Container(
-                                          height:
-                                              _theme(context).buttonBarHeight,
-                                          margin: _theme(context)
-                                              .bottomButtonBarMargin,
+                                          height: _theme(
+                                            context,
+                                          ).buttonBarHeight,
+                                          margin: _theme(
+                                            context,
+                                          ).bottomButtonBarMargin,
                                           child: Row(
                                             mainAxisSize: MainAxisSize.max,
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
-                                            children:
-                                                _theme(context).bottomButtonBar,
+                                            children: _theme(
+                                              context,
+                                            ).bottomButtonBar,
                                           ),
                                         ),
                                     ],
@@ -815,12 +864,13 @@ class _JellyflixDesktopVideoControlsState
                         // Buffering Indicator.
                         IgnorePointer(
                           child: Padding(
-                            padding: _theme(context).padding ??
+                            padding:
+                                _theme(context).padding ??
                                 (
-                                    // Add padding in fullscreen!
-                                    isFullscreen(context)
-                                        ? MediaQuery.of(context).padding
-                                        : EdgeInsets.zero),
+                                // Add padding in fullscreen!
+                                isFullscreen(context)
+                                    ? MediaQuery.of(context).padding
+                                    : EdgeInsets.zero),
                             child: Column(
                               children: [
                                 Container(
@@ -835,15 +885,17 @@ class _JellyflixDesktopVideoControlsState
                                           begin: 0.0,
                                           end: buffering ? 1.0 : 0.0,
                                         ),
-                                        duration: _theme(context)
-                                            .controlsTransitionDuration,
+                                        duration: _theme(
+                                          context,
+                                        ).controlsTransitionDuration,
                                         builder: (context, value, child) {
                                           // Only mount the buffering indicator if the opacity is greater than 0.0.
                                           // This has been done to prevent redundant resource usage in [CircularProgressIndicator].
                                           if (value > 0.0) {
                                             return Opacity(
                                               opacity: value,
-                                              child: _theme(context)
+                                              child:
+                                                  _theme(context)
                                                       .bufferingIndicatorBuilder
                                                       ?.call(context) ??
                                                   child!,
@@ -911,8 +963,8 @@ class JellyflixDesktopSeekBar extends StatefulWidget {
     this.circleSize = 6.0,
     this.circleColor = Colors.white,
     this.snappingFactor = 0.01,
-  })  : _cornerRadius = cornerRadius ?? BorderRadius.circular(8.0),
-        assert(value >= 0.0 && value <= 1.0);
+  }) : _cornerRadius = cornerRadius ?? BorderRadius.circular(8.0),
+       assert(value >= 0.0 && value <= 1.0);
 
   /// Initial progress value.
   final double value;
@@ -962,35 +1014,33 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (subscriptions.isEmpty) {
-      subscriptions.addAll(
-        [
-          controller(context).player.stream.playing.listen((event) {
-            setState(() {
-              playing = event;
-            });
-          }),
-          controller(context).player.stream.completed.listen((event) {
-            setState(() {
-              position = Duration.zero;
-            });
-          }),
-          controller(context).player.stream.position.listen((event) {
-            setState(() {
-              if (!click) position = event;
-            });
-          }),
-          controller(context).player.stream.duration.listen((event) {
-            setState(() {
-              duration = event;
-            });
-          }),
-          controller(context).player.stream.buffer.listen((event) {
-            setState(() {
-              buffer = event;
-            });
-          }),
-        ],
-      );
+      subscriptions.addAll([
+        controller(context).player.stream.playing.listen((event) {
+          setState(() {
+            playing = event;
+          });
+        }),
+        controller(context).player.stream.completed.listen((event) {
+          setState(() {
+            position = Duration.zero;
+          });
+        }),
+        controller(context).player.stream.position.listen((event) {
+          setState(() {
+            if (!click) position = event;
+          });
+        }),
+        controller(context).player.stream.duration.listen((event) {
+          setState(() {
+            duration = event;
+          });
+        }),
+        controller(context).player.stream.buffer.listen((event) {
+          setState(() {
+            buffer = event;
+          });
+        }),
+      ]);
     }
   }
 
@@ -1092,20 +1142,23 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
           // Snap to markers if close enough
           double snappedProgress = progress;
           for (double marker in widget.markers) {
-            double markerPosition =
-                (marker - widget.min) / (widget.max - widget.min);
+            // Convert marker timestamp to position (0.0 - 1.0)
+            double markerPosition = duration.inMilliseconds > 0
+                ? marker / duration.inMilliseconds
+                : 0.0;
             if ((progress - markerPosition).abs() < widget.snappingFactor) {
               snappedProgress = markerPosition;
               break;
             }
           }
           // TODO add snapping
-          double leftBoxWidth =
-              (sliderWidth * snappedProgress) - (widget.barWidth / 2);
-          double rightBoxWidth =
-              max(0, sliderWidth - leftBoxWidth - (widget.barWidth / 2));
-          print(
-              "width: $dragBarWidth left: $leftBoxWidth right: $rightBoxWidth rest: ${sliderWidth - leftBoxWidth - rightBoxWidth}");
+          // Calculate available space for left and right boxes (excluding the drag bar)
+          double availableWidth = sliderWidth - dragBarWidth;
+          double leftBoxWidth = max(
+            0,
+            min(availableWidth, availableWidth * snappedProgress),
+          );
+          double rightBoxWidth = max(0, availableWidth - leftBoxWidth);
 
           return MouseRegion(
             cursor: SystemMouseCursors.click,
@@ -1122,13 +1175,16 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
                 // Optionally, update slider position here if desired
                 // Set slider position to where the drag started
                 final RenderBox box = context.findRenderObject() as RenderBox;
-                final localPosition =
-                    box.globalToLocal(dragDetails.globalPosition);
+                final localPosition = box.globalToLocal(
+                  dragDetails.globalPosition,
+                );
                 double position = (localPosition.dx) / sliderWidth;
                 // Snap to markers if close enough
                 for (double marker in widget.markers) {
-                  double markerPosition =
-                      (marker - widget.min) / (widget.max - widget.min);
+                  // Convert marker timestamp to position (0.0 - 1.0)
+                  double markerPosition = duration.inMilliseconds > 0
+                      ? marker / duration.inMilliseconds
+                      : 0.0;
                   if ((position - markerPosition).abs() <
                       widget.snappingFactor) {
                     position = markerPosition;
@@ -1142,13 +1198,16 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
               },
               onHorizontalDragUpdate: (dragDetails) {
                 final RenderBox box = context.findRenderObject() as RenderBox;
-                final localPosition =
-                    box.globalToLocal(dragDetails.globalPosition);
+                final localPosition = box.globalToLocal(
+                  dragDetails.globalPosition,
+                );
                 double position = (localPosition.dx) / sliderWidth;
                 // Snap to markers if close enough
                 for (double marker in widget.markers) {
-                  double markerPosition =
-                      (marker - widget.min) / (widget.max - widget.min);
+                  // Convert marker timestamp to position (0.0 - 1.0)
+                  double markerPosition = duration.inMilliseconds > 0
+                      ? marker / duration.inMilliseconds
+                      : 0.0;
                   if ((position - markerPosition).abs() <
                       widget.snappingFactor) {
                     position = markerPosition;
@@ -1172,8 +1231,9 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
               onTapDown: (tapDetails) {
                 widget.onSeekStart?.call();
                 final RenderBox box = context.findRenderObject() as RenderBox;
-                final localPosition =
-                    box.globalToLocal(tapDetails.globalPosition);
+                final localPosition = box.globalToLocal(
+                  tapDetails.globalPosition,
+                );
 
                 double position = (localPosition.dx) / sliderWidth;
                 setState(() {
@@ -1196,8 +1256,9 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
                         AnimatedContainer(
                           width: leftBoxWidth,
                           height: sliderHeight,
-                          duration:
-                              _theme(context).seekBarThumbTransitionDuration,
+                          duration: _theme(
+                            context,
+                          ).seekBarThumbTransitionDuration,
                           decoration: BoxDecoration(
                             color: _theme(context).seekBarPositionColor,
                             borderRadius: widget._cornerRadius,
@@ -1219,12 +1280,13 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
                             AnimatedContainer(
                               width: rightBoxWidth,
                               height: sliderHeight,
-                              duration: _theme(context)
-                                  .seekBarThumbTransitionDuration,
+                              duration: _theme(
+                                context,
+                              ).seekBarThumbTransitionDuration,
                               decoration: BoxDecoration(
-                                color: _theme(context)
-                                    .seekBarBufferColor
-                                    .withOpacity(0.5),
+                                color: _theme(
+                                  context,
+                                ).seekBarBufferColor.withOpacity(0.5),
                                 borderRadius: widget._cornerRadius,
                               ),
                               margin: EdgeInsets.only(
@@ -1235,8 +1297,9 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
                             AnimatedContainer(
                               width: rightBoxWidth,
                               height: sliderHeight,
-                              duration: _theme(context)
-                                  .seekBarThumbTransitionDuration,
+                              duration: _theme(
+                                context,
+                              ).seekBarThumbTransitionDuration,
                               decoration: BoxDecoration(
                                 color: _theme(context).seekBarBufferColor,
                                 borderRadius: widget._cornerRadius,
@@ -1251,15 +1314,17 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
                     ),
                     // Markers (circles)
                     ...widget.markers.map((marker) {
-                      double markerPosition =
-                          (marker - widget.min) / (widget.max - widget.min);
+                      // Convert marker timestamp to position (0.0 - 1.0)
+                      double markerPosition = duration.inMilliseconds > 0
+                          ? marker / duration.inMilliseconds
+                          : 0.0;
                       double markerOffset =
-                          markerPosition * sliderWidthWithOutBar +
-                              widget.barWidth;
+                          markerPosition * availableWidth + (dragBarWidth / 2);
                       double circleSize = widget.circleSize;
                       return Positioned(
-                        left: markerOffset,
-                        top: _theme(context).seekBarContainerHeight / 2 -
+                        left: markerOffset - (circleSize / 2),
+                        top:
+                            _theme(context).seekBarContainerHeight / 2 -
                             circleSize / 2,
                         child: Container(
                           width: circleSize,
@@ -1275,12 +1340,22 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
                     ...widget.markers.asMap().entries.map((entry) {
                       int index = entry.key;
                       double marker = entry.value;
-                      double markerPosition =
-                          (marker - widget.min) / (widget.max - widget.min);
+                      // Convert marker timestamp to position (0.0 - 1.0)
+                      double markerPosition = duration.inMilliseconds > 0
+                          ? marker / duration.inMilliseconds
+                          : 0.0;
                       double markerOffset =
-                          markerPosition * sliderWidthWithOutBar +
-                              widget.barWidth;
+                          markerPosition * availableWidth + (dragBarWidth / 2);
+
+                      // Calculate current slider position
+                      double currentPosition =
+                          snappedProgress * availableWidth + (dragBarWidth / 2);
+                      bool isOnMarker =
+                          (currentPosition - markerOffset).abs() <
+                          widget.snappingFactor * availableWidth;
+
                       return Positioned(
+                        // If marker is on the left half, align left; otherwise align right
                         left: markerOffset < sliderWidth / 2
                             ? markerOffset
                             : null,
@@ -1288,59 +1363,14 @@ class JellyflixDesktopSeekBarState extends State<JellyflixDesktopSeekBar> {
                             ? sliderWidth - markerOffset
                             : null,
                         top: -_theme(context).seekBarContainerHeight / 2,
-                        child: Builder(
-                          builder: (context) {
-                            double currentPosition =
-                                snappedProgress * sliderWidthWithOutBar +
-                                    widget.barWidth;
-                            bool isOnMarker = (currentPosition - markerOffset)
-                                    .abs() <
-                                widget.snappingFactor * sliderWidthWithOutBar;
-                            return isOnMarker &&
-                                    index < widget.markerNames.length
-                                ? Text(
-                                    widget.markerNames[index],
-                                    style: widget.labelStyle,
-                                  )
-                                : const SizedBox.shrink();
-                          },
-                        ),
+                        child: isOnMarker && index < widget.markerNames.length
+                            ? Text(
+                                widget.markerNames[index],
+                                style: widget.labelStyle,
+                              )
+                            : const SizedBox.shrink(),
                       );
                     }),
-                    //Drag Paddler with extra drag region.
-                    // Container(
-                    //   decoration: BoxDecoration(
-                    //     border: Border.all(
-                    //       color: Colors.amber,
-                    //       width: 2.0,
-                    //     ),
-                    //   ),
-                    //   child: Positioned.fromRect(
-                    //     rect: Rect.fromCenter(
-                    //       width: sliderWidth, //_dragRegion.width,
-                    //       height: dragRegion.height,
-                    //       center: Offset(sliderWidth / 2, sliderHeight / 2),
-                    //     ),
-                    //     child: GestureDetector(
-                    //         behavior: HitTestBehavior.translucent,
-                    //         onHorizontalDragStart: (dragDetails) {
-                    //           print("hello");
-                    //           _onHorizontalDragUpdate(dragDetails, sliderWidth);
-                    //         },
-                    //         onHorizontalDragCancel: () {
-                    //           print("cancel");
-                    //         },
-                    //         onHorizontalDragUpdate: (dragDetails) {
-                    //           print("update");
-                    //           _onHorizontalDragUpdate(dragDetails, sliderWidth);
-                    //         },
-                    //         onTapDown: (details) =>
-                    //             _onHorizontalDragUpdate(details, sliderWidth)
-
-                    //         //onTap: _onTap();
-                    //         ),
-                    //   ),
-                    //),
                   ],
                 ),
               ),
@@ -1372,13 +1402,8 @@ class _DraggableBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: width,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: cornerRadius,
-      ),
-      margin: const EdgeInsets.symmetric(
-        horizontal: _barHorizontalMargins,
-      ),
+      decoration: BoxDecoration(color: color, borderRadius: cornerRadius),
+      margin: const EdgeInsets.symmetric(horizontal: _barHorizontalMargins),
     );
   }
 }
