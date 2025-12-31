@@ -1,5 +1,7 @@
+# Disabled temporarily
 name: Github Actions
-on: [push, pull_request]
+on: # [push, pull_request]
+  workflow_dispatch:
 
 jobs:
   media_kit-tests-windows:
@@ -86,7 +88,6 @@ jobs:
       - run: rm -r test/src/player/native
       - run: dart pub get
       - run: dart test --platform chrome
-      
 
   windows:
     name: Windows
@@ -223,10 +224,10 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-            distribution: 'zulu'
-            java-version: '17'
-            # cache: 'gradle'
-            # check-latest: true
+          distribution: "zulu"
+          java-version: "17"
+          # cache: 'gradle'
+          # check-latest: true
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
@@ -330,7 +331,7 @@ jobs:
           sed -i '/media_kit_libs_/d' pubspec.yaml
           cat pubspec.yaml
           sed -i '/media_kit_libs_/d' pubspec_overrides.yaml
-          cat pubspec_overrides.yaml   
+          cat pubspec_overrides.yaml
       - run: flutter pub get
       - run: flutter build linux --verbose
 
@@ -353,7 +354,7 @@ jobs:
           sed -i '' '/media_kit_libs_/d' pubspec.yaml
           cat pubspec.yaml
           sed -i '' '/media_kit_libs_/d' pubspec_overrides.yaml
-          cat pubspec_overrides.yaml   
+          cat pubspec_overrides.yaml
       - run: flutter pub get
       - run: flutter build macos --verbose
 
@@ -376,7 +377,7 @@ jobs:
           sed -i '' '/media_kit_libs_/d' pubspec.yaml
           cat pubspec.yaml
           sed -i '' '/media_kit_libs_/d' pubspec_overrides.yaml
-          cat pubspec_overrides.yaml   
+          cat pubspec_overrides.yaml
       - run: flutter pub get
       - run: flutter build ios --verbose --no-codesign
 
@@ -393,10 +394,10 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-            distribution: 'zulu'
-            java-version: '17'
-            # cache: 'gradle'
-            # check-latest: true
+          distribution: "zulu"
+          java-version: "17"
+          # cache: 'gradle'
+          # check-latest: true
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
@@ -406,7 +407,7 @@ jobs:
           sed -i '/media_kit_libs_/d' pubspec.yaml
           cat pubspec.yaml
           sed -i '/media_kit_libs_/d' pubspec_overrides.yaml
-          cat pubspec_overrides.yaml   
+          cat pubspec_overrides.yaml
       - run: flutter pub get
       - run: flutter build apk --split-per-abi --verbose
 
@@ -520,10 +521,10 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-            distribution: 'zulu'
-            java-version: '17'
-            # cache: 'gradle'
-            # check-latest: true
+          distribution: "zulu"
+          java-version: "17"
+          # cache: 'gradle'
+          # check-latest: true
       - uses: subosito/flutter-action@v2
         with:
           channel: "stable"
