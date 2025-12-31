@@ -63,11 +63,11 @@ function(check_directory_exists_and_not_empty dir result_var)
   endif()
 endfunction()
 
-set(LIBMPV "mpv-dev-x86_64-20251230-git-468e2a8.7z")
+set(LIBMPV "mpv-dev-x86_64-20251231-git-5cc1094.7z")
 
 # Download URL & MD5 hash of the libmpv archive.
-set(LIBMPV_URL "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20251230/mpv-dev-x86_64-20251230-git-468e2a8.7z")
-set(LIBMPV_MD5 "58529c8ae37b12efc65a324f12695bfb")
+set(LIBMPV_URL "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20251231/mpv-dev-x86_64-20251231-git-5cc1094.7z")
+set(LIBMPV_MD5 "ddfa7d33145668479314f141da82b7cb")
 
 # Download location of the libmpv archive.
 set(LIBMPV_ARCHIVE "${CMAKE_BINARY_DIR}/${LIBMPV}")
