@@ -12,3 +12,5 @@ export 'package:media_kit_video/media_kit_video_controls/src/controls/material_d
 export 'package:media_kit_video/media_kit_video_controls/src/controls/methods/fullscreen.dart';
 export 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/fullscreen_inherited_widget.dart';
 export 'package:media_kit_video/media_kit_video_controls/src/controls/widgets/video_state_inherited_widget.dart';
+export 'package:media_kit_video/media_kit_video_controls/src/controls/jellyflix_controls.dart';
+export 'package:media_kit_video/media_kit_video_controls/src/controls/jellyflix_desktop_controls.dart';
