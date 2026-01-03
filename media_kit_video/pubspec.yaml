@@ -29,7 +29,7 @@ dependencies:
   # Brightness and volume control dependencies
   screen_brightness_android: ^2.1.0
   screen_brightness_platform_interface: ^2.1.0
-  volume_controller: ^3.4.1
+  volume_controller: ^3.0.2
 
 dev_dependencies:
   flutter_lints: ^5.0.0
