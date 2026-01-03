@@ -27,8 +27,8 @@ dependencies:
   web: ^1.1.0
 
   # Brightness and volume control dependencies
-  screen_brightness_android: ^2.1.0
-  screen_brightness_platform_interface: ^2.1.0
+  screen_brightness_android: ^2.0.0
+  screen_brightness_platform_interface: ^2.0.0
   volume_controller: ^3.0.2
 
 dev_dependencies:
