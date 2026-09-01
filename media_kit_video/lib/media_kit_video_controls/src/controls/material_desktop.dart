@@ -358,8 +358,8 @@ class MaterialDesktopVideoControlsTheme extends InheritedWidget {
 
   @override
   bool updateShouldNotify(MaterialDesktopVideoControlsTheme oldWidget) =>
-      identical(normal, oldWidget.normal) &&
-      identical(fullscreen, oldWidget.fullscreen);
+      !identical(normal, oldWidget.normal) ||
+      !identical(fullscreen, oldWidget.fullscreen);
 }
 
 /// {@macro material_desktop_video_controls}

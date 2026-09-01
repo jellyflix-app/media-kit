@@ -96,6 +96,14 @@ class Video extends StatefulWidget {
   /// Whether to acquire wake lock while playing the video.
   final bool wakelock;
 
+  /// Whether to paint the Flutter [Texture] that shows decoded frames.
+  ///
+  /// Set to `false` when a native surface (e.g. iOS PiP sample-buffer
+  /// layer) is displaying the same frames, so the two do not composite
+  /// on top of each other. The [Texture] stays mounted so the render
+  /// context is not torn down.
+  final bool paintVideoFrame;
+
   /// Whether to pause the video when application enters background mode.
   final bool pauseUponEnteringBackgroundMode;
 
@@ -127,6 +135,7 @@ class Video extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.controls = media_kit_video_controls.AdaptiveVideoControls,
     this.wakelock = true,
+    this.paintVideoFrame = true,
     this.pauseUponEnteringBackgroundMode = true,
     this.resumeUponEnteringForegroundMode = false,
     this.subtitleViewConfiguration = const SubtitleViewConfiguration(),
@@ -369,11 +378,16 @@ class VideoState extends State<Video> with WidgetsBindingObserver {
                                           children: [
                                             const SizedBox(),
                                             Positioned.fill(
-                                              child: Texture(
-                                                textureId: id,
-                                                filterQuality:
-                                                    videoViewParameters
-                                                        .filterQuality,
+                                              child: Opacity(
+                                                opacity: widget.paintVideoFrame
+                                                    ? 1.0
+                                                    : 0.0,
+                                                child: Texture(
+                                                  textureId: id,
+                                                  filterQuality:
+                                                      videoViewParameters
+                                                          .filterQuality,
+                                                ),
                                               ),
                                             ),
                                             // Keep the |Texture| hidden before the first frame renders. In native implementation, if no default frame size is passed (through VideoController), a starting 1 pixel sized texture/surface is created to initialize the render context & check for H/W support.

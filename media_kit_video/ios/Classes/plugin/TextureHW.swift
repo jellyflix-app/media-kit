@@ -181,6 +181,10 @@ public class TextureHW: NSObject, FlutterTexture, ResizableTextureProtocol {
     glFlush()
 
     textureContexts.pushAsReady(textureContext!)
+
+    #if os(iOS)
+      MediaKitPiP.enqueue(textureContext!.pixelBuffer)
+    #endif
   }
 
   static private func getProcAddress(

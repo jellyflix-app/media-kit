@@ -142,5 +142,9 @@ public class TextureSW: NSObject, FlutterTexture, ResizableTextureProtocol {
     mpv_render_context_render(renderContext, &params)
 
     textureContexts.pushAsReady(textureContext!)
+
+    #if os(iOS)
+      MediaKitPiP.enqueue(textureContext!.pixelBuffer)
+    #endif
   }
 }
